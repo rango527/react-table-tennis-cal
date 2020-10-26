@@ -32,10 +32,10 @@ export default class CreateSessionForm extends Component {
       : null
 
     groupDayOfWeek =
-      groupDayOfWeek < todayDayOfWeek ? groupDayOfWeek + 7 : groupDayOfWeek
+      groupDayOfWeek > todayDayOfWeek ? groupDayOfWeek - 7 : groupDayOfWeek
 
     const defaultDate = group_id
-      ? Date.now() + (groupDayOfWeek - todayDayOfWeek) * (3600 * 1000 * 24)
+      ? Date.now() - (todayDayOfWeek - groupDayOfWeek) * (3600 * 1000 * 24)
       : null
 
     return (
