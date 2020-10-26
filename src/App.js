@@ -1,6 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import { baseUrl } from './constants'
-import { Container, Segment, Header, Menu, Button } from 'semantic-ui-react'
+import {
+  Container,
+  Segment,
+  Header,
+  Menu,
+  Button,
+  Message,
+} from 'semantic-ui-react'
 import PlayerContainer from './containers/PlayerContainer'
 import GroupContainer from './containers/GroupContainer'
 import SessionContainer from './containers/SessionContainer'
@@ -70,6 +77,21 @@ export default class App extends Component {
                 Log Out
               </Button>
             </Segment>
+            <Message>
+              <Message.Header>
+                Application status: very much under construction
+              </Message.Header>
+              <Message.List>
+                <Message.Item>
+                  Right now, it pretty much just displays players (and their
+                  ratings), groups (and their players), and sessions
+                </Message.Item>
+                <Message.Item>
+                  Next up: creating a session, recording results, and
+                  calculating ratings
+                </Message.Item>
+              </Message.List>
+            </Message>
             <Menu attached="top" tabular>
               <Menu.Item
                 name="players"
