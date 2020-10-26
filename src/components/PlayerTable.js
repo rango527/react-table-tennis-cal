@@ -4,8 +4,6 @@ import { Table } from 'semantic-ui-react'
 export default class PlayerTable extends Component {
   render() {
     const { column, direction, players, handleHeaderClick } = this.props
-    console.log('PlayerTable -> render -> direction', direction)
-    console.log('PlayerTable -> render -> column', column)
 
     return (
       <Table sortable>
@@ -53,7 +51,9 @@ export default class PlayerTable extends Component {
                 </Table.Cell>
 
                 <Table.Cell>
-                  {player.ratings[player.ratings.length - 1].value}
+                  {player.ratings.length > 0
+                    ? player.ratings[player.ratings.length - 1].value
+                    : ''}
                 </Table.Cell>
               </Table.Row>
             )

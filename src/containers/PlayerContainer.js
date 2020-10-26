@@ -64,25 +64,31 @@ export default class PlayerContainer extends Component {
   }
 
   fetchPlayers = () => {
-    fetch(baseUrl + '/players', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-    })
-      .then((res) => res.json())
-      .then((players) => {
-        this.setState({
-          players: players.sort((a, b) => {
-            return (
-              a.ratings[a.ratings.length - 1].value -
-              b.ratings[b.ratings.length - 1].value
-            )
-          }),
-        })
+    let token = localStorage.getItem('token')
+    if (token) {
+      fetch(baseUrl + '/players', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch((e) => console.error(e))
+        .then((res) => res.json())
+        .then((players) => {
+          this.setState({
+            players: players.sort((a, b) => {
+              if (a.ratings.length > 0 && b.ratings.length > 0) {
+                return (
+                  a.ratings[a.ratings.length - 1].value -
+                  b.ratings[b.ratings.length - 1].value
+                )
+              } else {
+                return 0
+              }
+            }),
+          })
+        })
+        .catch((e) => console.error(e))
+    }
   }
-
   componentDidMount() {
     this.fetchPlayers()
   }

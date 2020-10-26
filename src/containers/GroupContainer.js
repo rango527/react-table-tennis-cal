@@ -16,7 +16,14 @@ export default class GroupContainer extends Component {
     const { groups } = this.state
     this.setState({
       activeItem: group_id,
-      players: groups.find((group) => group.id === group_id).players,
+      players: groups
+        .find((group) => group.id === group_id)
+        .players.sort((a, b) => {
+          return (
+            a.ratings[a.ratings.length - 1].value -
+            b.ratings[b.ratings.length - 1].value
+          )
+        }),
     })
   }
 
@@ -75,16 +82,19 @@ export default class GroupContainer extends Component {
   }
 
   fetchGroups = () => {
-    fetch(baseUrl + '/groups', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-    })
-      .then((res) => res.json())
-      .then((groups) => {
-        this.setState({ groups })
+    let token = localStorage.getItem('token')
+    if (token) {
+      fetch(baseUrl + '/groups', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch((e) => console.error(e))
+        .then((res) => res.json())
+        .then((groups) => {
+          this.setState({ groups })
+        })
+        .catch((e) => console.error(e))
+    }
   }
 
   componentDidMount() {

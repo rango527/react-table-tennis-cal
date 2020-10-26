@@ -8,16 +8,19 @@ export default class SessionContainer extends Component {
   }
 
   fetchSessions = () => {
-    fetch(baseUrl + '/sessions', {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-    })
-      .then((res) => res.json())
-      .then((sessions) => {
-        this.setState({ sessions })
+    let token = localStorage.getItem('token')
+    if (token) {
+      fetch(baseUrl + '/sessions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch((e) => console.error(e))
+        .then((res) => res.json())
+        .then((sessions) => {
+          this.setState({ sessions })
+        })
+        .catch((e) => console.error(e))
+    }
   }
 
   componentDidMount() {
