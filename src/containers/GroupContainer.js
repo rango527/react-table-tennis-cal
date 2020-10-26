@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import GroupTable from '../components/GroupTable'
 import PlayerTable from '../components/PlayerTable'
 import { baseUrl } from '../constants'
+import { Message } from 'semantic-ui-react'
 
 export default class GroupContainer extends Component {
   state = {
@@ -106,6 +107,11 @@ export default class GroupContainer extends Component {
 
     return (
       <Fragment>
+        <Message
+          attached
+          header="Who is in what group?"
+          content="Click on a group to see its members"
+        />
         <GroupTable
           groups={groups}
           activeItem={activeItem}
