@@ -47,7 +47,7 @@ export default class CreateSessionForm extends Component {
           <Message
             attached
             header="Not yet functional"
-            content="Session creation isn't fully functional functional. Select a group to see a sample scorecard."
+            content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
           />
           <Form onSubmit={handleCreateSession}>
             <Segment stacked>

@@ -93,7 +93,7 @@ export default class App extends Component {
                 </Message.Item>
               </Message.List>
             </Message>
-            <Menu attached="top" tabular>
+            <Menu attached="top" tabular stackable>
               <Menu.Item
                 name="players"
                 active={activeItem === 'players'}
