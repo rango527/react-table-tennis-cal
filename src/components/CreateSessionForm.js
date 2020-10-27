@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { Container, Form, Button, Segment, Message } from 'semantic-ui-react'
+import Scorecard from './ScoreCard'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-datepicker/dist/react-datepicker-cssmodules.css'
@@ -21,15 +22,17 @@ export default class CreateSessionForm extends Component {
 
     const { handleCreateSession, groups } = this.props
 
+    const group = group_id
+      ? groups.find((group) => group_id === group.id)
+      : null
+
     const groupOptions = groups.map((group) => {
       return { key: group.name, text: group.name, value: group.id }
     })
 
     const todayDayOfWeek = new Date().getDay()
 
-    let groupDayOfWeek = group_id
-      ? groups.find((group) => group_id === group.id).day_of_week
-      : null
+    let groupDayOfWeek = group_id ? group.day_of_week : null
 
     groupDayOfWeek =
       groupDayOfWeek > todayDayOfWeek ? groupDayOfWeek - 7 : groupDayOfWeek
@@ -44,7 +47,7 @@ export default class CreateSessionForm extends Component {
           <Message
             attached
             header="Not yet functional"
-            content="Session creation isn't yet functional. Once it is, a scorecard will appear, with groups members, etc."
+            content="Session creation isn't fully functional functional. Select a group to see a sample scorecard."
           />
           <Form onSubmit={handleCreateSession}>
             <Segment stacked>
@@ -59,7 +62,7 @@ export default class CreateSessionForm extends Component {
               </Form.Field>
               <Form.Field>
                 <DatePicker
-                  placeholderText="Click to select"
+                  placeholderText="...and date will default"
                   selected={defaultDate}
                   onChange={this.handleDateChange}
                   minDate={Date.now()}
@@ -67,8 +70,25 @@ export default class CreateSessionForm extends Component {
                   dateFormat="MM/dd/yyyy"
                 />
               </Form.Field>
-              <Button>Create Session</Button>
+              {/* <Button>Create Session</Button> */}
             </Segment>
+
+            {group ? (
+              <Fragment>
+                <Message
+                  attached
+                  content="The scorecard will default with the expected winners prefilled. You'll then be able to delete players that didn't show, change the winner where the underdog prevailed, and save the session and calculate ratings."
+                />
+                <Scorecard
+                  players={group.players.sort((a, b) => {
+                    return (
+                      b.ratings[b.ratings.length - 1].value -
+                      a.ratings[a.ratings.length - 1].value
+                    )
+                  })}
+                />
+              </Fragment>
+            ) : null}
 
             <div className="ui error message" />
           </Form>

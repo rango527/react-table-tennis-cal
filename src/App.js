@@ -12,6 +12,7 @@ import PlayerContainer from './containers/PlayerContainer'
 import GroupContainer from './containers/GroupContainer'
 import SessionContainer from './containers/SessionContainer'
 import LoginForm from './components/LoginForm'
+import CalculateRatings from './components/CalculateRatings'
 
 export default class App extends Component {
   state = {
@@ -84,11 +85,11 @@ export default class App extends Component {
               <Message.List>
                 <Message.Item>
                   Right now, it pretty much just displays players (and their
-                  ratings), groups (and their players), and sessions
+                  ratings), groups (and their players), and sessions.
                 </Message.Item>
                 <Message.Item>
-                  Next up: creating a session, recording results, and
-                  calculating ratings
+                  I've just started on the main interface for recording results
+                  and calculating ratings. It's in the "Record Results" tab.
                 </Message.Item>
               </Message.List>
             </Message>
@@ -108,12 +109,19 @@ export default class App extends Component {
                 active={activeItem === 'sessions'}
                 onClick={this.handleItemClick}
               />
+              <Menu.Item
+                name="record results"
+                icon="calculator"
+                active={activeItem === 'record results'}
+                onClick={this.handleItemClick}
+              />
             </Menu>
 
             <Segment attached="bottom">
               {activeItem === 'players' ? <PlayerContainer /> : null}
               {activeItem === 'groups' ? <GroupContainer /> : null}
               {activeItem === 'sessions' ? <SessionContainer /> : null}
+              {activeItem === 'record results' ? <CalculateRatings /> : null}
             </Segment>
           </Fragment>
         ) : (

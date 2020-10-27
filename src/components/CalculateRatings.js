@@ -1,41 +1,39 @@
 import React, { Component, Fragment } from 'react'
-import SessionTable from '../components/SessionTable'
+import CreateSessionForm from '../components/CreateSessionForm'
 import { baseUrl } from '../constants'
 
 export default class SessionContainer extends Component {
   state = {
-    sessions: [],
+    groups: [],
   }
 
-  fetchSessions = () => {
+  fetchGroups = () => {
     let token = localStorage.getItem('token')
     if (token) {
-      fetch(baseUrl + '/sessions', {
+      fetch(baseUrl + '/groups', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
         .then((res) => res.json())
-        .then((sessions) => {
-          this.setState({ sessions })
+        .then((groups) => {
+          this.setState({ groups })
         })
         .catch((e) => console.error(e))
     }
   }
 
-  handleClick = () => {
-    this.setState({ displayForm: true })
-  }
+  handleClick = () => {}
   componentDidMount() {
-    this.fetchSessions()
+    this.fetchGroups()
   }
 
   render() {
-    const { sessions } = this.state
+    const { groups } = this.state
 
     return (
       <Fragment>
-        <SessionTable sessions={sessions} />
+        <CreateSessionForm groups={groups} />
       </Fragment>
     )
   }
