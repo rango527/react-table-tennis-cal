@@ -1,10 +1,13 @@
 import React, { Component, Fragment } from 'react'
 import SessionTable from '../components/SessionTable'
+import MatchesTable from '../components/MatchesTable'
 import { baseUrl } from '../constants'
 
 export default class SessionContainer extends Component {
   state = {
     sessions: [],
+    matches: [],
+    activeItem: null,
   }
 
   fetchSessions = () => {
@@ -23,19 +26,29 @@ export default class SessionContainer extends Component {
     }
   }
 
-  handleClick = () => {
-    this.setState({ displayForm: true })
+  handleSessionClick = (e, session_id) => {
+    const { sessions } = this.state
+    this.setState({
+      activeItem: session_id,
+      matches: sessions.find((session) => session.id === session_id).matches,
+    })
   }
+
   componentDidMount() {
     this.fetchSessions()
   }
 
   render() {
-    const { sessions } = this.state
+    const { sessions, activeItem, matches } = this.state
 
     return (
       <Fragment>
-        <SessionTable sessions={sessions} />
+        <SessionTable
+          sessions={sessions}
+          activeItem={activeItem}
+          handleSessionClick={this.handleSessionClick}
+        />
+        {activeItem ? <MatchesTable matches={matches} /> : null}
       </Fragment>
     )
   }

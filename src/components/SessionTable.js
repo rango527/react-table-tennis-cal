@@ -7,7 +7,7 @@ export default class SessionTable extends Component {
   componentDidMount() {}
 
   render() {
-    const { sessions } = this.props
+    const { sessions, handleSessionClick, activeItem } = this.props
     return (
       <Fragment>
         <Message
@@ -15,7 +15,7 @@ export default class SessionTable extends Component {
           header="Past Sessions"
           content="You'll be able to see a history of results here. And probably be able to go back and edit them, eventually."
         />
-        <Table singleLine>
+        <Table singleLine selectable>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Session Date</Table.HeaderCell>
@@ -26,7 +26,11 @@ export default class SessionTable extends Component {
           <Table.Body>
             {sessions.map((session) => {
               return (
-                <Table.Row key={session.date}>
+                <Table.Row
+                  key={session.date}
+                  onClick={(e) => handleSessionClick(e, session.id)}
+                  active={activeItem === session.id}
+                >
                   <Table.Cell>
                     {new Date(session.date).toDateString()}
                   </Table.Cell>

@@ -11,12 +11,14 @@ export default class ScoreCard extends Component {
     const { players } = this.props
     return (
       <Table unstackable celled fixed size="large">
-        <Table.Header>
+        <Table.Header style={{ position: 'sticky', top: 0 }}>
           <Table.Row key="upper left space" style={{ height: '5rem' }}>
             <Table.Cell style={{ width: '5rem' }}></Table.Cell>
             {players.map((player) => {
               return (
-                <Table.Cell style={{ width: '5rem' }}>{player.name}</Table.Cell>
+                <Table.Cell key={player.name} style={{ width: '5rem' }}>
+                  {player.name}
+                </Table.Cell>
               )
             })}
           </Table.Row>
@@ -30,6 +32,7 @@ export default class ScoreCard extends Component {
                 {players.map((p, i) => {
                   return (
                     <Table.Cell
+                      key={p.name}
                       style={{ fontSize: '10px', textAlign: 'center' }}
                     >
                       {index !== i ? (
