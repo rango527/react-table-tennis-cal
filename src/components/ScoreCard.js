@@ -10,7 +10,7 @@ export default class ScoreCard extends Component {
   render() {
     const { players } = this.props
     return (
-      <Table celled fixed size="large">
+      <Table unstackable celled fixed size="large">
         <Table.Header>
           <Table.Row key="upper left space" style={{ height: '5rem' }}>
             <Table.Cell style={{ width: '5rem' }}></Table.Cell>
