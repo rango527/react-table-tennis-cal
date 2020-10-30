@@ -11,12 +11,26 @@ export default class ScoreCard extends Component {
     const { players } = this.props
     return (
       <Table unstackable celled fixed size="large">
-        <Table.Header style={{ position: 'sticky', top: 0 }}>
+        <Table.Header>
           <Table.Row key="upper left space" style={{ height: '5rem' }}>
-            <Table.Cell style={{ width: '5rem' }}></Table.Cell>
+            <Table.Cell
+              style={{
+                width: '5rem',
+                borderBottom: '1px solid rgba(34, 36, 38, 0.15)',
+              }}
+            ></Table.Cell>
             {players.map((player) => {
               return (
-                <Table.Cell key={player.name} style={{ width: '5rem' }}>
+                <Table.Cell
+                  key={player.name}
+                  style={{
+                    position: 'sticky',
+                    top: 0,
+                    width: '5rem',
+                    backgroundColor: 'white',
+                    borderBottom: '1px solid rgba(34, 36, 38, 0.15)',
+                  }}
+                >
                   {player.name}
                 </Table.Cell>
               )
@@ -33,7 +47,10 @@ export default class ScoreCard extends Component {
                   return (
                     <Table.Cell
                       key={p.name}
-                      style={{ fontSize: '10px', textAlign: 'center' }}
+                      style={{
+                        fontSize: '10px',
+                        textAlign: 'center',
+                      }}
                     >
                       {index !== i ? (
                         <ChoiceOfWinner index={index} i={i} />

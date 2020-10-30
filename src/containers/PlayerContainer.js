@@ -25,6 +25,12 @@ export default class PlayerContainer extends Component {
         })
       } else if (name === 'group') {
         sortedPlayers = players.sort((a, b) => {
+          if (a.groups.length === 0) {
+            return -1
+          }
+          if (b.groups.length === 0) {
+            return 1
+          }
           if (a.groups[0].name < b.groups[0].name) {
             return -1
           }
@@ -77,8 +83,8 @@ export default class PlayerContainer extends Component {
             players: players.sort((a, b) => {
               if (a.ratings.length > 0 && b.ratings.length > 0) {
                 return (
-                  a.ratings[a.ratings.length - 1].value -
-                  b.ratings[b.ratings.length - 1].value
+                  b.ratings[b.ratings.length - 1].value -
+                  a.ratings[a.ratings.length - 1].value
                 )
               } else {
                 return 0

@@ -21,8 +21,8 @@ export default class GroupContainer extends Component {
         .find((group) => group.id === group_id)
         .players.sort((a, b) => {
           return (
-            a.ratings[a.ratings.length - 1].value -
-            b.ratings[b.ratings.length - 1].value
+            b.ratings[b.ratings.length - 1].value -
+            a.ratings[a.ratings.length - 1].value
           )
         }),
     })
