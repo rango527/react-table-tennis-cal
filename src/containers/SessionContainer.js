@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import SessionTable from '../components/SessionTable'
 import MatchesTable from '../components/MatchesTable'
+import { Loader } from 'semantic-ui-react'
 import { baseUrl } from '../constants'
 
 export default class SessionContainer extends Component {
@@ -43,11 +44,16 @@ export default class SessionContainer extends Component {
 
     return (
       <Fragment>
-        <SessionTable
-          sessions={sessions}
-          activeItem={activeItem}
-          handleSessionClick={this.handleSessionClick}
-        />
+        {sessions.length > 0 ? (
+          <SessionTable
+            sessions={sessions}
+            activeItem={activeItem}
+            handleSessionClick={this.handleSessionClick}
+          />
+        ) : (
+          <Loader active inline="centered" />
+        )}
+
         {activeItem ? <MatchesTable matches={matches} /> : null}
       </Fragment>
     )

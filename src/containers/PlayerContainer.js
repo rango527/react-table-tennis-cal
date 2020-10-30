@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import PlayerTable from '../components/PlayerTable'
+import { Loader } from 'semantic-ui-react'
 import { baseUrl } from '../constants'
 
 export default class PlayerContainer extends Component {
@@ -79,17 +80,18 @@ export default class PlayerContainer extends Component {
       })
         .then((res) => res.json())
         .then((players) => {
+          const sortedPlayers = players.sort((a, b) => {
+            if (a.ratings.length > 0 && b.ratings.length > 0) {
+              return (
+                b.ratings[b.ratings.length - 1].value -
+                a.ratings[a.ratings.length - 1].value
+              )
+            } else {
+              return 0
+            }
+          })
           this.setState({
-            players: players.sort((a, b) => {
-              if (a.ratings.length > 0 && b.ratings.length > 0) {
-                return (
-                  b.ratings[b.ratings.length - 1].value -
-                  a.ratings[a.ratings.length - 1].value
-                )
-              } else {
-                return 0
-              }
-            }),
+            players: sortedPlayers,
           })
         })
         .catch((e) => console.error(e))
@@ -101,15 +103,20 @@ export default class PlayerContainer extends Component {
 
   render() {
     const { column, direction, players } = this.state
-    console.log('PlayerContainer -> render -> column', column)
 
     return (
-      <PlayerTable
-        players={players}
-        column={column}
-        direction={direction}
-        handleHeaderClick={this.handleHeaderClick}
-      />
+      <Fragment>
+        {players.length > 0 ? (
+          <PlayerTable
+            players={players}
+            column={column}
+            direction={direction}
+            handleHeaderClick={this.handleHeaderClick}
+          />
+        ) : (
+          <Loader active inline="centered" />
+        )}
+      </Fragment>
     )
   }
 }

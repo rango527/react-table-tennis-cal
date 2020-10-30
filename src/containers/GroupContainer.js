@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import GroupTable from '../components/GroupTable'
 import PlayerTable from '../components/PlayerTable'
 import { baseUrl } from '../constants'
-import { Message } from 'semantic-ui-react'
+import { Message, Loader } from 'semantic-ui-react'
 
 export default class GroupContainer extends Component {
   state = {
@@ -111,12 +111,18 @@ export default class GroupContainer extends Component {
           attached
           header="Who is in what group?"
           content="Click on a group to see its members"
+          style={{ marginBottom: '1rem' }}
         />
-        <GroupTable
-          groups={groups}
-          activeItem={activeItem}
-          handleGroupClick={this.handleGroupClick}
-        />
+
+        {groups.length > 0 ? (
+          <GroupTable
+            groups={groups}
+            activeItem={activeItem}
+            handleGroupClick={this.handleGroupClick}
+          />
+        ) : (
+          <Loader active inline="centered" />
+        )}
         {activeItem ? (
           <PlayerTable
             column={column}
