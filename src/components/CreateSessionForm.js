@@ -16,9 +16,12 @@ export default class CreateSessionForm extends Component {
     })
   }
   handleGroupChange = (e, { value }) => this.setState({ group_id: value })
+  handleRemoveGroup = () => {
+    this.setState({ group_id: null })
+  }
 
   render() {
-    const { date, group_id } = this.state
+    const { group_id } = this.state
 
     const { handleCreateSession, groups } = this.props
 
@@ -44,42 +47,45 @@ export default class CreateSessionForm extends Component {
     return (
       <Fragment>
         <Container>
-          <Message
-            attached
-            header="Not yet functional"
-            content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
-          />
-          <Form onSubmit={handleCreateSession}>
-            <Segment stacked>
-              <Form.Field>
-                <Form.Dropdown
-                  placeholder="Select Group"
-                  fluid
-                  selection
-                  options={groupOptions}
-                  onChange={this.handleGroupChange}
+          <div>
+            {!group ? (
+              <Form>
+                <Message
+                  attached
+                  header="Not yet functional"
+                  content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
                 />
-              </Form.Field>
-              <Form.Field>
-                <DatePicker
-                  placeholderText="...and date will default"
-                  selected={defaultDate}
-                  onChange={this.handleDateChange}
-                  minDate={Date.now()}
-                  // showTimeSelect
-                  dateFormat="MM/dd/yyyy"
-                />
-              </Form.Field>
-              {/* <Button>Create Session</Button> */}
-            </Segment>
+                <Segment stacked>
+                  <Form.Field>
+                    <Form.Dropdown
+                      placeholder="Select Group"
+                      fluid
+                      selection
+                      options={groupOptions}
+                      onChange={this.handleGroupChange}
+                    />
+                  </Form.Field>
+                  <Form.Field>
+                    <DatePicker
+                      placeholderText="...and date will default"
+                      selected={defaultDate}
+                      onChange={this.handleDateChange}
+                      minDate={Date.now()}
+                      // showTimeSelect
+                      dateFormat="MM/dd/yyyy"
+                    />
+                  </Form.Field>
+                  {/* <Button>Create Session</Button> */}
+                </Segment>
+                <div className="ui error message" />
+              </Form>
+            ) : null}
 
             {group ? (
               <Fragment>
-                <Message
-                  attached
-                  content="The scorecard will default with the expected winners prefilled. You'll then be able to delete players that didn't show, change the winner where the underdog prevailed, and save the session and calculate ratings."
-                />
                 <Scorecard
+                  handleRemoveGroup={this.handleRemoveGroup}
+                  group_id={group_id}
                   players={group.players.sort((a, b) => {
                     return (
                       b.ratings[b.ratings.length - 1].value -
@@ -89,9 +95,7 @@ export default class CreateSessionForm extends Component {
                 />
               </Fragment>
             ) : null}
-
-            <div className="ui error message" />
-          </Form>
+          </div>
         </Container>
       </Fragment>
     )
