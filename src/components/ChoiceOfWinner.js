@@ -3,17 +3,19 @@ import { Icon } from 'semantic-ui-react'
 
 export default class ChoiceOfWinner extends Component {
   render() {
-    const { match, handleClick } = this.props
-    console.log('ChoiceOfWinner -> render -> match', match)
-    const { size, icon } = match
+    const { match, handleClick, index, i } = this.props
+
+    const { size, icon, hide } = match
     return (
       <div>
-        <Icon
-          // loading
-          size={size}
-          name={icon}
-          onClick={this.handleClick}
-        />
+        {!hide ? (
+          <Icon
+            // loading
+            size={size}
+            name={icon}
+            onClick={() => handleClick(index, i)}
+          />
+        ) : null}
       </div>
     )
   }

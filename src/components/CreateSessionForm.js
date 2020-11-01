@@ -1,38 +1,27 @@
 import React, { Component, Fragment } from 'react'
-import { Container, Form, Button, Segment, Message } from 'semantic-ui-react'
+import { Container, Form, Segment, Message, Loader } from 'semantic-ui-react'
 import Scorecard from './ScoreCard'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import 'react-datepicker/dist/react-datepicker-cssmodules.css'
+
+import { baseUrl, HEADERS } from '../constants'
 
 export default class CreateSessionForm extends Component {
   state = {
     date: null,
     group_id: null,
+    loading: false,
   }
   handleDateChange = (date) => {
     this.setState({
-      date: date,
+      date,
     })
   }
-  handleGroupChange = (e, { value }) => this.setState({ group_id: value })
-  handleRemoveGroup = () => {
-    this.setState({ group_id: null })
-  }
+  handleGroupChange = (e, { value }) => {
+    const { groups } = this.props
 
-  render() {
-    const { group_id } = this.state
-
-    const { handleCreateSession, groups } = this.props
-
+    const group_id = value
     const group = group_id
       ? groups.find((group) => group_id === group.id)
       : null
-
-    const groupOptions = groups.map((group) => {
-      return { key: group.name, text: group.name, value: group.id }
-    })
-
     const todayDayOfWeek = new Date().getDay()
 
     let groupDayOfWeek = group_id ? group.day_of_week : null
@@ -44,11 +33,55 @@ export default class CreateSessionForm extends Component {
       ? Date.now() - (todayDayOfWeek - groupDayOfWeek) * (3600 * 1000 * 24)
       : null
 
+    this.setState({ group_id: group_id, date: defaultDate })
+  }
+
+  handleRemoveGroup = () => {
+    this.setState({ group_id: null })
+  }
+
+  handleCreateSessionClick = (matches, group_id) => {
+    this.setState({ loading: true })
+    const { date } = this.state
+    const uniqueMatches = matches.filter((match) => match.count && match.played)
+    console.log('handleCreateSessionClick -> uniqueMatches', uniqueMatches)
+
+    let data = {
+      matches: uniqueMatches,
+      group_id,
+      date: new Date(date),
+    }
+
+    fetch(`${baseUrl}/sessions`, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((jsonData) => {
+        console.log('CreateSessionForm -> jsonData', jsonData)
+        this.setState({ loading: false })
+      })
+  }
+
+  render() {
+    const { group_id, date, loading } = this.state
+
+    const { groups } = this.props
+
+    const group = group_id
+      ? groups.find((group) => group_id === group.id)
+      : null
+
+    const groupOptions = groups.map((group) => {
+      return { key: group.name, text: group.name, value: group.id }
+    })
+
     return (
       <Fragment>
         <Container>
           <div>
-            {!group ? (
+            {!group && !loading ? (
               <Form>
                 <Message
                   attached
@@ -65,25 +98,17 @@ export default class CreateSessionForm extends Component {
                       onChange={this.handleGroupChange}
                     />
                   </Form.Field>
-                  <Form.Field>
-                    <DatePicker
-                      placeholderText="...and date will default"
-                      selected={defaultDate}
-                      onChange={this.handleDateChange}
-                      minDate={Date.now()}
-                      // showTimeSelect
-                      dateFormat="MM/dd/yyyy"
-                    />
-                  </Form.Field>
-                  {/* <Button>Create Session</Button> */}
                 </Segment>
                 <div className="ui error message" />
               </Form>
             ) : null}
 
-            {group ? (
+            {group && !loading ? (
               <Fragment>
                 <Scorecard
+                  date={date}
+                  handleDateChange={this.handleDateChange}
+                  handleCreateSessionClick={this.handleCreateSessionClick}
                   handleRemoveGroup={this.handleRemoveGroup}
                   group_id={group_id}
                   players={group.players.sort((a, b) => {
@@ -95,6 +120,7 @@ export default class CreateSessionForm extends Component {
                 />
               </Fragment>
             ) : null}
+            {loading ? <Loader active inline="centered" /> : null}
           </div>
         </Container>
       </Fragment>
