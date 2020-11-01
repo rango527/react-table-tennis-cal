@@ -1,13 +1,14 @@
 import React, { Component, Fragment } from 'react'
+import { Link } from 'wouter'
+
 import PlayerTable from '../components/PlayerTable'
-import { Loader } from 'semantic-ui-react'
-import { baseUrl } from '../constants'
+import { Loader, Button, Icon } from 'semantic-ui-react'
 
 export default class PlayerContainer extends Component {
   state = {
     column: null,
     direction: null,
-    players: [],
+    sortedPlayers: [],
   }
 
   handleHeaderClick = (e, name) => {
@@ -66,53 +67,44 @@ export default class PlayerContainer extends Component {
     this.setState({
       column: name,
       direction: direction === 'ascending' ? 'descending' : 'ascending',
-      players: sortedPlayers,
+      sortedPlayers,
     })
   }
 
-  fetchPlayers = () => {
-    let token = localStorage.getItem('token')
-    if (token) {
-      fetch(baseUrl + '/players', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((players) => {
-          const sortedPlayers = players.sort((a, b) => {
-            if (a.ratings.length > 0 && b.ratings.length > 0) {
-              return (
-                b.ratings[b.ratings.length - 1].value -
-                a.ratings[a.ratings.length - 1].value
-              )
-            } else {
-              return 0
-            }
-          })
-          this.setState({
-            players: sortedPlayers,
-          })
-        })
-        .catch((e) => console.error(e))
-    }
-  }
-  componentDidMount() {
-    this.fetchPlayers()
-  }
+  componentDidMount() {}
 
   render() {
-    const { column, direction, players } = this.state
+    const { column, direction, sortedPlayers } = this.state
+    const {
+      user,
+      groups,
+      players,
+      handleAddPlayerToGroup,
+      loading,
+      handleCreatePlayer,
+    } = this.props
 
     return (
       <Fragment>
-        {players.length > 0 ? (
-          <PlayerTable
-            players={players}
-            column={column}
-            direction={direction}
-            handleHeaderClick={this.handleHeaderClick}
-          />
+        {players.length > 0 && !loading ? (
+          <Fragment>
+            <Link href="/players/create" onClick={handleCreatePlayer}>
+              <Button icon labelPosition="left" onClick={handleCreatePlayer}>
+                <Icon name="plus" />
+                Create Player
+              </Button>
+            </Link>
+            <PlayerTable
+              loading={loading}
+              user={user}
+              groups={groups}
+              players={sortedPlayers.length > 0 ? sortedPlayers : players}
+              column={column}
+              direction={direction}
+              handleHeaderClick={this.handleHeaderClick}
+              handleAddPlayerToGroup={handleAddPlayerToGroup}
+            />
+          </Fragment>
         ) : (
           <Loader active inline="centered" />
         )}

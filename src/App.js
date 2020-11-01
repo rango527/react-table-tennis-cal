@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { Link, Route, Redirect } from 'wouter'
-import { baseUrl } from './constants'
+import { baseUrl, HEADERS } from './constants'
 import {
   Container,
   Segment,
@@ -17,9 +17,13 @@ import CalculateRatings from './components/CalculateRatings'
 
 export default class App extends Component {
   state = {
+    loading: false,
     activeItem: 'players',
+    groups: [],
+    players: [],
     loggedIn: false,
     error: '',
+    user: {},
   }
 
   handleLogin = (e) => {
@@ -45,9 +49,15 @@ export default class App extends Component {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          window.location.replace('/players')
+          window.history.pushState({}, 'Players', '/players')
           localStorage.setItem('token', data.jwt)
-          this.setState({ error: '', loggedIn: true })
+          localStorage.setItem('admin', data.player.admin)
+
+          this.setState({
+            error: '',
+            loggedIn: true,
+            user: data.player,
+          })
         } else {
           this.setState({ error: 'Invalid username or password' })
           alert('Invalid username or password')
@@ -60,13 +70,90 @@ export default class App extends Component {
     this.setState({ loggedIn: false })
   }
 
-  handleItemClick = () => {
+  fetchGroups = () => {
+    this.setState({ loading: true, groups: [] })
+
+    let token = localStorage.getItem('token')
+    if (token) {
+      fetch(baseUrl + '/groups', {
+        headers: HEADERS,
+      })
+        .then((res) => res.json())
+        .then((groups) => {
+          this.setState({ groups, loading: false })
+        })
+        .catch((e) => console.error(e))
+    }
+  }
+
+  fetchPlayers = () => {
+    this.setState({ loading: true, players: [] })
+
+    let token = localStorage.getItem('token')
+    if (token) {
+      fetch(baseUrl + '/players', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((players) => {
+          const sortedPlayers = players.sort((a, b) => {
+            if (a.ratings.length > 0 && b.ratings.length > 0) {
+              return (
+                b.ratings[b.ratings.length - 1].value -
+                a.ratings[a.ratings.length - 1].value
+              )
+            } else {
+              return 0
+            }
+          })
+          this.setState({
+            players: sortedPlayers,
+            loading: false,
+          })
+        })
+        .catch((e) => console.error(e))
+    }
+  }
+
+  handleAddPlayerToGroup = (groupId, playerId, addOrRemove) => {
+    this.setState({ loading: true })
+
+    let data = {
+      player_id: playerId,
+      add_or_remove: addOrRemove,
+    }
+
+    fetch(`${baseUrl}/groups/${groupId}`, {
+      method: 'PATCH',
+      headers: HEADERS,
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((jsonData) => {
+        this.fetchPlayers()
+        this.fetchGroups()
+        this.setState({
+          loading: false,
+        })
+      })
+  }
+
+  handleCreatePlayer = () => {}
+
+  handleNavClick = () => {
     this.setState({ navigated: true })
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.fetchGroups()
+    this.fetchPlayers()
+  }
 
   render() {
+    const { user, groups, players, loading } = this.state
+    console.log('render -> groups', groups)
     return (
       <Container style={{ padding: '1rem' }}>
         {localStorage.getItem('token') ? (
@@ -97,7 +184,7 @@ export default class App extends Component {
             <Menu attached="top" tabular stackable>
               <Link
                 href="/players"
-                onClick={() => this.handleItemClick('players')}
+                onClick={() => this.handleNavClick('players')}
               >
                 <Menu.Item
                   name="players"
@@ -106,7 +193,7 @@ export default class App extends Component {
               </Link>
               <Link
                 href="/groups"
-                onClick={() => this.handleItemClick('groups')}
+                onClick={() => this.handleNavClick('groups')}
               >
                 <Menu.Item
                   name="groups"
@@ -115,7 +202,7 @@ export default class App extends Component {
               </Link>
               <Link
                 href="/sessions"
-                onClick={() => this.handleItemClick('sessions')}
+                onClick={() => this.handleNavClick('sessions')}
               >
                 <Menu.Item
                   name="sessions"
@@ -124,7 +211,7 @@ export default class App extends Component {
               </Link>
               <Link
                 href="/record-results"
-                onClick={() => this.handleItemClick('record-results')}
+                onClick={() => this.handleNavClick('record-results')}
               >
                 <Menu.Item
                   name="record results"
@@ -136,16 +223,29 @@ export default class App extends Component {
 
             <Segment attached="bottom">
               <Route path="/players">
-                <PlayerContainer />
+                <PlayerContainer
+                  loading={loading}
+                  user={user}
+                  groups={groups}
+                  players={players}
+                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+                  handleCreatePlayer={this.handleCreatePlayer}
+                />
               </Route>
               <Route path="/groups">
-                <GroupContainer />
+                <GroupContainer
+                  loading={loading}
+                  user={user}
+                  groups={groups}
+                  players={players}
+                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+                />
               </Route>
               <Route path="/sessions">
-                <SessionContainer />
+                <SessionContainer user={user} />
               </Route>
               <Route path="/record-results">
-                <CalculateRatings />
+                <CalculateRatings user={user} />
               </Route>
             </Segment>
           </Fragment>

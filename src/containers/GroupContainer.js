@@ -1,23 +1,21 @@
 import React, { Component, Fragment } from 'react'
 import GroupTable from '../components/GroupTable'
 import PlayerTable from '../components/PlayerTable'
-import { baseUrl } from '../constants'
 import { Message, Loader } from 'semantic-ui-react'
 
 export default class GroupContainer extends Component {
   state = {
-    groups: [],
     activeItem: null,
     column: null,
     direction: null,
-    players: [],
+    sortedPlayers: [],
   }
 
   handleGroupClick = (e, group_id) => {
-    const { groups } = this.state
+    const { groups } = this.props
     this.setState({
       activeItem: group_id,
-      players: groups
+      sortedPlayers: groups
         .find((group) => group.id === group_id)
         .players.sort((a, b) => {
           return (
@@ -29,21 +27,20 @@ export default class GroupContainer extends Component {
   }
 
   handleHeaderClick = (e, name) => {
-    const { direction, players, column } = this.state
+    let { direction, sortedPlayers, column } = this.state
 
-    let sortedPlayers
     if (name === column) {
-      sortedPlayers = players.reverse()
+      sortedPlayers = sortedPlayers.reverse()
     } else {
       if (name === 'rating') {
-        sortedPlayers = players.sort((a, b) => {
+        sortedPlayers = sortedPlayers.sort((a, b) => {
           return (
             a.ratings[a.ratings.length - 1].value -
             b.ratings[b.ratings.length - 1].value
           )
         })
       } else if (name === 'group') {
-        sortedPlayers = players.sort((a, b) => {
+        sortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.groups[0].name < b.groups[0].name) {
             return -1
           }
@@ -53,7 +50,7 @@ export default class GroupContainer extends Component {
           return 0
         })
       } else if (name === 'email') {
-        sortedPlayers = players.sort((a, b) => {
+        sortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.email < b.email) {
             return -1
           }
@@ -63,7 +60,7 @@ export default class GroupContainer extends Component {
           return 0
         })
       } else if (name === 'name') {
-        sortedPlayers = players.sort((a, b) => {
+        sortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.name < b.name) {
             return -1
           }
@@ -78,32 +75,25 @@ export default class GroupContainer extends Component {
     this.setState({
       column: name,
       direction: direction === 'ascending' ? 'descending' : 'ascending',
-      players: sortedPlayers,
+      sortedPlayers,
     })
   }
 
-  fetchGroups = () => {
-    let token = localStorage.getItem('token')
-    if (token) {
-      fetch(baseUrl + '/groups', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((groups) => {
-          this.setState({ groups })
-        })
-        .catch((e) => console.error(e))
-    }
+  handleAddPlayerToGroup = (group_id, player_id, addOrRemove = 'add') => {
+    const { handleAddPlayerToGroup } = this.props
+
+    this.setState({
+      sortedPlayers: [],
+    })
+
+    handleAddPlayerToGroup(group_id, player_id, addOrRemove)
   }
 
-  componentDidMount() {
-    this.fetchGroups()
-  }
+  componentDidMount() {}
 
   render() {
-    const { groups, activeItem, players, column, direction } = this.state
+    const { activeItem, column, direction, sortedPlayers } = this.state
+    const { user, groups, loading } = this.props
 
     return (
       <Fragment>
@@ -123,12 +113,15 @@ export default class GroupContainer extends Component {
         ) : (
           <Loader active inline="centered" />
         )}
-        {activeItem ? (
+        {activeItem && sortedPlayers.length > 0 && !loading ? (
           <PlayerTable
+            user={user}
+            groups={groups}
             column={column}
             direction={direction}
-            players={players}
+            players={sortedPlayers}
             handleHeaderClick={this.handleHeaderClick}
+            handleAddPlayerToGroup={this.handleAddPlayerToGroup}
           />
         ) : null}
       </Fragment>

@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react'
 import { Container, Form, Segment, Input, Button } from 'semantic-ui-react'
-import { Link } from 'wouter'
 
 class LoginForm extends Component {
   render() {
