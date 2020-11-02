@@ -46,22 +46,22 @@ export default class CreateSessionForm extends Component {
     const uniqueMatches = matches.filter((match) => match.count && match.played)
     console.log('handleCreateSessionClick -> uniqueMatches', uniqueMatches)
 
-    // let data = {
-    //   matches: uniqueMatches,
-    //   group_id,
-    //   date: new Date(date),
-    // }
+    let data = {
+      matches: uniqueMatches,
+      group_id,
+      date: new Date(date),
+    }
 
-    // fetch(`${baseUrl}/sessions`, {
-    //   method: 'POST',
-    //   headers: HEADERS,
-    //   body: JSON.stringify(data),
-    // })
-    //   .then((response) => response.json())
-    //   .then((jsonData) => {
-    //     console.log('CreateSessionForm -> jsonData', jsonData)
-    //     this.setState({ loading: false })
-    //   })
+    fetch(`${baseUrl}/sessions`, {
+      method: 'POST',
+      headers: HEADERS,
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((jsonData) => {
+        console.log('CreateSessionForm -> jsonData', jsonData)
+        this.setState({ loading: false })
+      })
   }
 
   render() {
