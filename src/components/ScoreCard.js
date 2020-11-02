@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Table, Button, Message, Segment, Icon, Form } from 'semantic-ui-react'
 import ChoiceOfWinner from './ChoiceOfWinner'
+import ResultsTable from './ResultsTable'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import 'react-datepicker/dist/react-datepicker-cssmodules.css'
@@ -42,7 +43,9 @@ export default class ScoreCard extends Component {
     oneMatch.size = oneMatchProgression[oneMatch.icon].size
     oneMatch.played = oneMatchProgression[oneMatch.icon].played
     oneMatch.icon = oneMatchProgression[oneMatch.icon].icon
-    ;[oneMatch.winner, oneMatch.loser] = [oneMatch.loser, oneMatch.winner]
+    if (oneMatch.icon !== 'close') {
+      ;[oneMatch.winner, oneMatch.loser] = [oneMatch.loser, oneMatch.winner]
+    }
     matches[oneMatchIndex] = oneMatch
 
     const anotherMatch = matches[anotherMatchIndex]
@@ -50,10 +53,12 @@ export default class ScoreCard extends Component {
     anotherMatch.size = anotherMatchProgression[anotherMatch.icon].size
     anotherMatch.played = anotherMatchProgression[anotherMatch.icon].played
     anotherMatch.icon = anotherMatchProgression[anotherMatch.icon].icon
-    ;[anotherMatch.winner, anotherMatch.loser] = [
-      anotherMatch.loser,
-      anotherMatch.winner,
-    ]
+    if (anotherMatch.icon !== 'close') {
+      ;[anotherMatch.winner, anotherMatch.loser] = [
+        anotherMatch.loser,
+        anotherMatch.winner,
+      ]
+    }
     matches[anotherMatchIndex] = anotherMatch
 
     this.setState({ matches })
@@ -70,10 +75,6 @@ export default class ScoreCard extends Component {
     } else {
       inactivePlayerIds.push(player.id)
     }
-    console.log(
-      'ScoreCard -> handleInactivate -> inactivePlayerIds',
-      inactivePlayerIds
-    )
 
     const mappedMatches = matches.map((match) => {
       if (
@@ -99,8 +100,8 @@ export default class ScoreCard extends Component {
       players.forEach((p, i) => {
         if (index !== i) {
           const winner = index < i ? player : p
-          const icon = index > i ? 'pointing up' : 'pointing left'
           const loser = index > i ? player : p
+          const icon = index > i ? 'pointing up' : 'pointing left'
           const size = 'large'
           const count = index < i ? true : false
           const played = true
@@ -245,6 +246,7 @@ export default class ScoreCard extends Component {
             })}
           </Table.Body>
         </Table>
+        <ResultsTable matches={matches} />
       </Segment>
     )
   }
