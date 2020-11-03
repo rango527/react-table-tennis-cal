@@ -242,9 +242,7 @@ export default class App extends Component {
               <SessionContainer path="/sessions" user={user} />
               <CalculateRatings path="/record-results" user={user} />
             </Segment>
-          ) : (
-            <Redirect to="/login" />
-          )}
+          ) : null}
           {!localStorage.getItem('token') ? (
             <LoginForm path="/login" handleLogin={this.handleLogin} />
           ) : null}
