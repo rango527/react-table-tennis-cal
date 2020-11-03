@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Dropdown, Table, Loader } from 'semantic-ui-react'
+import { Link } from 'wouter'
 
 export default class PlayerTable extends Component {
   render() {
@@ -51,7 +52,13 @@ export default class PlayerTable extends Component {
           {players.map((player) => {
             return (
               <Table.Row key={player.name}>
-                <Table.Cell>{player.name}</Table.Cell>
+                <Table.Cell>
+                  {player.ratings.length > 1 ? (
+                    <Link href={'/players/' + player.id}>{player.name}</Link>
+                  ) : (
+                    player.name
+                  )}
+                </Table.Cell>
                 <Table.Cell>{player.email}</Table.Cell>
                 <Table.Cell>
                   {player.groups.map((group, index) => {

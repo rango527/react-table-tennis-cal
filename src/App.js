@@ -13,6 +13,7 @@ import PlayerContainer from './containers/PlayerContainer'
 import GroupContainer from './containers/GroupContainer'
 import SessionContainer from './containers/SessionContainer'
 import LoginForm from './components/LoginForm'
+import PlayerStats from './components/PlayerStats'
 import CalculateRatings from './components/CalculateRatings'
 
 export default class App extends Component {
@@ -231,6 +232,9 @@ export default class App extends Component {
                   handleAddPlayerToGroup={this.handleAddPlayerToGroup}
                   handleCreatePlayer={this.handleCreatePlayer}
                 />
+              </Route>
+              <Route path="/players/:id">
+                <PlayerStats />
               </Route>
               <Route path="/groups">
                 <GroupContainer
