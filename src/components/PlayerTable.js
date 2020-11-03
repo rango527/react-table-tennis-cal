@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Dropdown, Table, Loader } from 'semantic-ui-react'
-import { Link } from 'wouter'
+import { Link } from '@reach/router'
 
 export default class PlayerTable extends Component {
   render() {
@@ -11,6 +11,7 @@ export default class PlayerTable extends Component {
       handleHeaderClick,
       groups,
       handleAddPlayerToGroup,
+      handleShowPlayer,
       loading,
     } = this.props
 
@@ -54,7 +55,12 @@ export default class PlayerTable extends Component {
               <Table.Row key={player.name}>
                 <Table.Cell>
                   {player.ratings.length > 1 ? (
-                    <Link href={'/players/' + player.id}>{player.name}</Link>
+                    <div
+                      style={{ color: 'blue' }}
+                      onClick={() => handleShowPlayer(player)}
+                    >
+                      {player.name}
+                    </div>
                   ) : (
                     player.name
                   )}

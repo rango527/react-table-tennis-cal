@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
-import { Link } from 'wouter'
-
+import { Link } from '@reach/router'
+import PlayerStats from '../components/PlayerStats'
 import PlayerTable from '../components/PlayerTable'
 import { Loader, Button, Icon } from 'semantic-ui-react'
 
@@ -9,6 +9,7 @@ export default class PlayerContainer extends Component {
     column: null,
     direction: null,
     sortedPlayers: [],
+    player: false,
   }
 
   handleHeaderClick = (e, name) => {
@@ -71,10 +72,14 @@ export default class PlayerContainer extends Component {
     })
   }
 
+  handleShowPlayer = (player) => {
+    this.setState({ player })
+  }
+
   componentDidMount() {}
 
   render() {
-    const { column, direction, sortedPlayers } = this.state
+    const { column, direction, sortedPlayers, player } = this.state
     const {
       user,
       groups,
@@ -88,7 +93,7 @@ export default class PlayerContainer extends Component {
       <Fragment>
         {players.length > 0 && !loading ? (
           <Fragment>
-            <Link href="/players/create" onClick={handleCreatePlayer}>
+            <Link to="/players/create" onClick={handleCreatePlayer}>
               <Button icon labelPosition="left" onClick={handleCreatePlayer}>
                 <Icon name="plus" />
                 Create Player
@@ -103,7 +108,9 @@ export default class PlayerContainer extends Component {
               direction={direction}
               handleHeaderClick={this.handleHeaderClick}
               handleAddPlayerToGroup={handleAddPlayerToGroup}
+              handleShowPlayer={this.handleShowPlayer}
             />
+            {player ? <PlayerStats player={player} /> : null}
           </Fragment>
         ) : (
           <Loader active inline="centered" />

@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react'
-import { Link, Route, Redirect } from 'wouter'
+import React, { Component } from 'react'
+import { Router, Link, Redirect } from '@reach/router'
 import { baseUrl, HEADERS } from './constants'
 import {
   Container,
@@ -13,7 +13,6 @@ import PlayerContainer from './containers/PlayerContainer'
 import GroupContainer from './containers/GroupContainer'
 import SessionContainer from './containers/SessionContainer'
 import LoginForm from './components/LoginForm'
-import PlayerStats from './components/PlayerStats'
 import CalculateRatings from './components/CalculateRatings'
 
 export default class App extends Component {
@@ -158,12 +157,12 @@ export default class App extends Component {
     return (
       <Container style={{ padding: '1rem' }}>
         {localStorage.getItem('token') ? (
-          <Fragment>
+          <div path="/">
             <Segment clearing>
               <Header as="h1" floated="left">
                 WDCTT Ratings
               </Header>
-              <Link href="/login" onClick={this.handleLogout}>
+              <Link to="/login" onClick={this.handleLogout}>
                 <Button floated="right">Log Out</Button>
               </Link>
             </Segment>
@@ -182,9 +181,9 @@ export default class App extends Component {
                 </Message.Item>
               </Message.List>
             </Message>
-            <Menu attached="top" tabular stackable>
+            <Menu tabular stackable>
               <Link
-                href="/players"
+                to="/players"
                 onClick={() => this.handleNavClick('players')}
               >
                 <Menu.Item
@@ -192,17 +191,14 @@ export default class App extends Component {
                   active={window.location.href.indexOf('players') > -1}
                 />
               </Link>
-              <Link
-                href="/groups"
-                onClick={() => this.handleNavClick('groups')}
-              >
+              <Link to="/groups" onClick={() => this.handleNavClick('groups')}>
                 <Menu.Item
                   name="groups"
                   active={window.location.href.indexOf('groups') > -1}
                 />
               </Link>
               <Link
-                href="/sessions"
+                to="/sessions"
                 onClick={() => this.handleNavClick('sessions')}
               >
                 <Menu.Item
@@ -211,7 +207,7 @@ export default class App extends Component {
                 />
               </Link>
               <Link
-                href="/record-results"
+                to="/record-results"
                 onClick={() => this.handleNavClick('record-results')}
               >
                 <Menu.Item
@@ -221,46 +217,38 @@ export default class App extends Component {
                 />
               </Link>
             </Menu>
-
-            <Segment attached="bottom">
-              <Route path="/players">
-                <PlayerContainer
-                  loading={loading}
-                  user={user}
-                  groups={groups}
-                  players={players}
-                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                  handleCreatePlayer={this.handleCreatePlayer}
-                />
-              </Route>
-              <Route path="/players/:id">
-                <PlayerStats />
-              </Route>
-              <Route path="/groups">
-                <GroupContainer
-                  loading={loading}
-                  user={user}
-                  groups={groups}
-                  players={players}
-                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                />
-              </Route>
-              <Route path="/sessions">
-                <SessionContainer user={user} />
-              </Route>
-              <Route path="/record-results">
-                <CalculateRatings user={user} />
-              </Route>
-            </Segment>
-          </Fragment>
-        ) : (
-          <Redirect to="/login" />
-        )}
-        {!localStorage.getItem('token') ? (
-          <Route path="/login">
-            <LoginForm handleLogin={this.handleLogin} />
-          </Route>
+          </div>
         ) : null}
+        <Router>
+          {localStorage.getItem('token') ? (
+            <Segment path="/">
+              <PlayerContainer
+                path="/players"
+                loading={loading}
+                user={user}
+                groups={groups}
+                players={players}
+                handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+                handleCreatePlayer={this.handleCreatePlayer}
+              />
+              <GroupContainer
+                path="/groups"
+                loading={loading}
+                user={user}
+                groups={groups}
+                players={players}
+                handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+              />
+              <SessionContainer path="/sessions" user={user} />
+              <CalculateRatings path="/record-results" user={user} />
+            </Segment>
+          ) : (
+            <Redirect to="/login" />
+          )}
+          {!localStorage.getItem('token') ? (
+            <LoginForm path="/login" handleLogin={this.handleLogin} />
+          ) : null}
+        </Router>
       </Container>
     )
   }
