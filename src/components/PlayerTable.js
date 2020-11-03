@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-import { Dropdown, Table, Loader } from 'semantic-ui-react'
-import { Link } from '@reach/router'
+import { Dropdown, Table, Loader, Icon } from 'semantic-ui-react'
 
 export default class PlayerTable extends Component {
   render() {
@@ -55,11 +54,13 @@ export default class PlayerTable extends Component {
               <Table.Row key={player.name}>
                 <Table.Cell>
                   {player.ratings.length > 1 ? (
-                    <div
-                      style={{ color: 'blue' }}
-                      onClick={() => handleShowPlayer(player)}
-                    >
+                    <div>
                       {player.name}
+                      <Icon
+                        name="chart line"
+                        onClick={() => handleShowPlayer(player)}
+                        style={{ marginLeft: '.25rem' }}
+                      />
                     </div>
                   ) : (
                     player.name
