@@ -25,21 +25,33 @@ export default class PlayerStats extends Component {
   render() {
     const { player } = this.props
 
-    const data = player.ratings.map((rating) => {
-      if (rating.session) {
-        console.log(
-          'PlayerStats -> render -> rating.session.date',
-          this.getFormattedDate(new Date(rating.session.date))
-        )
-      }
+    const data = player.ratings
+      .sort((a, b) => {
+        if (!a.session) {
+          return -1
+        }
+        if (!b.session) {
+          return 1
+        }
+        return new Date(a.session.date) - new Date(b.session.date)
+      })
+      .map((rating) => {
+        if (rating.session) {
+          console.log(
+            'PlayerStats -> render -> rating.session.date',
+            this.getFormattedDate(new Date(rating.session.date))
+          )
+        }
 
-      return {
-        date: rating.session
-          ? this.getFormattedDate(new Date(rating.session.date))
-          : 'start',
-        rating: rating.value,
-      }
-    })
+        return {
+          date: rating.session
+            ? this.getFormattedDate(new Date(rating.session.date))
+            : 'start',
+          rating: rating.value,
+        }
+      })
+
+    console.log('PlayerStats -> render -> data', data)
 
     const sortedRatings = player.ratings.sort((a, b) => {
       return b.value - a.value

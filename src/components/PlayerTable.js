@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
-import { Dropdown, Table, Loader, Icon } from 'semantic-ui-react'
+import { Dropdown, Table, Loader, Icon, Modal } from 'semantic-ui-react'
+import PlayerStats from './PlayerStats'
 
 export default class PlayerTable extends Component {
+  state = {
+    modalOpen: false,
+    modalPlayer: {},
+  }
+
   render() {
     const {
       column,
@@ -10,9 +16,10 @@ export default class PlayerTable extends Component {
       handleHeaderClick,
       groups,
       handleAddPlayerToGroup,
-      handleShowPlayer,
       loading,
     } = this.props
+
+    const { modalOpen, modalPlayer } = this.state
 
     return (
       <Table sortable celled>
@@ -56,11 +63,30 @@ export default class PlayerTable extends Component {
                   {player.ratings.length > 1 ? (
                     <div>
                       {player.name}
-                      <Icon
-                        name="chart line"
-                        onClick={() => handleShowPlayer(player)}
-                        style={{ marginLeft: '.25rem' }}
-                      />
+                      <Modal
+                        closeIcon
+                        open={modalOpen}
+                        trigger={
+                          <Icon
+                            name="chart line"
+                            // onClick={() => handleShowPlayer(player)}
+                            style={{ marginLeft: '.25rem' }}
+                          />
+                        }
+                        onClose={() =>
+                          this.setState({ modalOpen: false, modalPlayer: {} })
+                        }
+                        onOpen={() =>
+                          this.setState({
+                            modalOpen: true,
+                            modalPlayer: player,
+                          })
+                        }
+                      >
+                        <Modal.Content>
+                          <PlayerStats player={modalPlayer} />
+                        </Modal.Content>
+                      </Modal>
                     </div>
                   ) : (
                     player.name

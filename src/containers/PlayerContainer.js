@@ -9,7 +9,6 @@ export default class PlayerContainer extends Component {
     column: null,
     direction: null,
     sortedPlayers: [],
-    player: false,
   }
 
   handleHeaderClick = (e, name) => {
@@ -79,7 +78,7 @@ export default class PlayerContainer extends Component {
   componentDidMount() {}
 
   render() {
-    const { column, direction, sortedPlayers, player } = this.state
+    const { column, direction, sortedPlayers } = this.state
     const {
       user,
       groups,
@@ -110,7 +109,6 @@ export default class PlayerContainer extends Component {
               handleAddPlayerToGroup={handleAddPlayerToGroup}
               handleShowPlayer={this.handleShowPlayer}
             />
-            {player ? <PlayerStats player={player} /> : null}
           </Fragment>
         ) : (
           <Loader active inline="centered" />
