@@ -9,47 +9,28 @@ import {
   Tooltip,
   Legend,
 } from 'recharts'
+import { sortPlayerRatings, getFormattedDate } from '../utilities'
 
 export default class PlayerStats extends Component {
-  getFormattedDate = (date) => {
-    var year = date.getFullYear()
-
-    var month = (1 + date.getMonth()).toString()
-    month = month.length > 1 ? month : '0' + month
-
-    var day = date.getDate().toString()
-    day = day.length > 1 ? day : '0' + day
-
-    return month + '/' + day + '/' + year
-  }
   render() {
     const { player } = this.props
+    console.log('PlayerStats -> render -> player.ratings', player.ratings)
 
-    const data = player.ratings
-      .sort((a, b) => {
-        if (!a.session) {
-          return -1
-        }
-        if (!b.session) {
-          return 1
-        }
-        return new Date(a.session.date) - new Date(b.session.date)
-      })
-      .map((rating) => {
-        if (rating.session) {
-          console.log(
-            'PlayerStats -> render -> rating.session.date',
-            this.getFormattedDate(new Date(rating.session.date))
-          )
-        }
+    const data = sortPlayerRatings(player).map((rating) => {
+      if (rating.session) {
+        console.log(
+          'PlayerStats -> render -> rating.session.date',
+          getFormattedDate(new Date(rating.session.date))
+        )
+      }
 
-        return {
-          date: rating.session
-            ? this.getFormattedDate(new Date(rating.session.date))
-            : 'start',
-          rating: rating.value,
-        }
-      })
+      return {
+        date: rating.session
+          ? getFormattedDate(new Date(rating.session.date))
+          : 'start',
+        rating: rating.value,
+      }
+    })
 
     console.log('PlayerStats -> render -> data', data)
 

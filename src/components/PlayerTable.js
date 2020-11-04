@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Dropdown, Table, Loader, Icon, Modal } from 'semantic-ui-react'
 import PlayerStats from './PlayerStats'
+import { mostRecentPlayerRating } from '../utilities'
 
 export default class PlayerTable extends Component {
   state = {
@@ -161,7 +162,7 @@ export default class PlayerTable extends Component {
 
                 <Table.Cell>
                   {player.ratings.length > 0
-                    ? player.ratings[player.ratings.length - 1].value
+                    ? mostRecentPlayerRating(player).value
                     : ''}
                 </Table.Cell>
               </Table.Row>
