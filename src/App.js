@@ -80,6 +80,8 @@ export default class App extends Component {
       })
         .then((res) => res.json())
         .then((groups) => {
+          console.log('App -> groups', groups)
+
           this.setState({ groups, loading: false })
         })
         .catch((e) => console.error(e))
@@ -98,6 +100,7 @@ export default class App extends Component {
       })
         .then((res) => res.json())
         .then((players) => {
+          console.log('App -> players', players)
           const sortedPlayers = players.sort((a, b) => {
             if (a.ratings.length > 0 && b.ratings.length > 0) {
               return (
