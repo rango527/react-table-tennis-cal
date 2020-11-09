@@ -18,10 +18,17 @@ export default class GroupContainer extends Component {
       sortedPlayers: groups
         .find((group) => group.id === group_id)
         .players.sort((a, b) => {
-          return (
-            b.ratings[b.ratings.length - 1].value -
-            a.ratings[a.ratings.length - 1].value
-          )
+          if (a.ratings.length > 0 && b.ratings.length > 0) {
+            const sortedARatings = a.ratings.sort((a, b) => a.id - b.id)
+            const sortedBRatings = b.ratings.sort((a, b) => a.id - b.id)
+
+            return (
+              sortedBRatings[sortedBRatings.length - 1].value -
+              sortedARatings[sortedARatings.length - 1].value
+            )
+          } else {
+            return 0
+          }
         }),
     })
   }

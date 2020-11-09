@@ -103,14 +103,18 @@ export default class App extends Component {
           console.log('App -> players', players)
           const sortedPlayers = players.sort((a, b) => {
             if (a.ratings.length > 0 && b.ratings.length > 0) {
+              const sortedARatings = a.ratings.sort((a, b) => a.id - b.id)
+              const sortedBRatings = b.ratings.sort((a, b) => a.id - b.id)
+
               return (
-                b.ratings[b.ratings.length - 1].value -
-                a.ratings[a.ratings.length - 1].value
+                sortedBRatings[sortedBRatings.length - 1].value -
+                sortedARatings[sortedARatings.length - 1].value
               )
             } else {
               return 0
             }
           })
+
           this.setState({
             players: sortedPlayers,
             loading: false,
