@@ -117,7 +117,7 @@ export default class PlayerContainer extends Component {
             />
           </Fragment>
         ) : (
-          <Loader active inline="centered" />
+          <Loader style={{ marginTop: '1rem' }} active inline="centered" />
         )}
       </Fragment>
     )

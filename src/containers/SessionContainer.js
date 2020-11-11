@@ -49,7 +49,7 @@ export default class SessionContainer extends Component {
             handleSessionClick={this.handleSessionClick}
           />
         ) : (
-          <Loader active inline="centered" />
+          <Loader style={{ marginTop: '1rem' }} active inline="centered" />
         )}
 
         {activeItem ? <MatchesTable matches={matches} /> : null}

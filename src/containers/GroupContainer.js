@@ -116,7 +116,7 @@ export default class GroupContainer extends Component {
             handleGroupClick={this.handleGroupClick}
           />
         ) : (
-          <Loader active inline="centered" />
+          <Loader style={{ marginTop: '1rem' }} active inline="centered" />
         )}
         {activeItem && sortedPlayers.length > 0 && !loading ? (
           <PlayerTable
