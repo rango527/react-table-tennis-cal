@@ -13,7 +13,7 @@ export default class SessionTable extends Component {
         <Message
           attached
           header="Past Sessions"
-          content="You'll be able to see a history of results here. And probably be able to go back and edit them, eventually."
+          content="Click on a session to see a list of results from that session."
         />
         <Table singleLine selectable>
           <Table.Header>

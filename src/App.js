@@ -1,14 +1,8 @@
-import React, { Component } from 'react'
-import { Router, Link, Redirect } from '@reach/router'
+import React, { Component, Fragment } from 'react'
+import { Router, Link } from '@reach/router'
 import { baseUrl, HEADERS } from './constants'
-import {
-  Container,
-  Segment,
-  Header,
-  Menu,
-  Button,
-  Message,
-} from 'semantic-ui-react'
+import { Container, Segment, Header, Button, Message } from 'semantic-ui-react'
+import Nav from './components/Nav'
 import PlayerContainer from './containers/PlayerContainer'
 import GroupContainer from './containers/GroupContainer'
 import SessionContainer from './containers/SessionContainer'
@@ -49,7 +43,7 @@ export default class App extends Component {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          window.history.pushState({}, 'Players', '/players')
+          window.history.pushState({}, 'Home', '/')
           localStorage.setItem('token', data.jwt)
           localStorage.setItem('admin', data.player.admin)
 
@@ -73,55 +67,53 @@ export default class App extends Component {
   fetchGroups = () => {
     this.setState({ loading: true, groups: [] })
 
-    let token = localStorage.getItem('token')
-    if (token) {
-      fetch(baseUrl + '/groups', {
-        headers: HEADERS,
-      })
-        .then((res) => res.json())
-        .then((groups) => {
-          console.log('App -> groups', groups)
+    // let token = localStorage.getItem('token')
+    // if (token) {
+    fetch(baseUrl + '/groups', {
+      // headers: HEADERS,
+    })
+      .then((res) => res.json())
+      .then((groups) => {
+        console.log('App -> groups', groups)
 
-          this.setState({ groups, loading: false })
-        })
-        .catch((e) => console.error(e))
-    }
+        this.setState({ groups, loading: false })
+      })
+      .catch((e) => console.error(e))
+    // }
   }
 
   fetchPlayers = () => {
     this.setState({ loading: true, players: [] })
 
-    let token = localStorage.getItem('token')
-    if (token) {
-      fetch(baseUrl + '/players', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((players) => {
-          console.log('App -> players', players)
-          const sortedPlayers = players.sort((a, b) => {
-            if (a.ratings.length > 0 && b.ratings.length > 0) {
-              const sortedARatings = a.ratings.sort((a, b) => a.id - b.id)
-              const sortedBRatings = b.ratings.sort((a, b) => a.id - b.id)
+    // let token = localStorage.getItem('token')
+    // if (token) {
+    fetch(baseUrl + '/players', {
+      // headers: HEADERS,
+    })
+      .then((res) => res.json())
+      .then((players) => {
+        console.log('App -> players', players)
+        const sortedPlayers = players.sort((a, b) => {
+          if (a.ratings.length > 0 && b.ratings.length > 0) {
+            const sortedARatings = a.ratings.sort((a, b) => a.id - b.id)
+            const sortedBRatings = b.ratings.sort((a, b) => a.id - b.id)
 
-              return (
-                sortedBRatings[sortedBRatings.length - 1].value -
-                sortedARatings[sortedARatings.length - 1].value
-              )
-            } else {
-              return 0
-            }
-          })
-
-          this.setState({
-            players: sortedPlayers,
-            loading: false,
-          })
+            return (
+              sortedBRatings[sortedBRatings.length - 1].value -
+              sortedARatings[sortedARatings.length - 1].value
+            )
+          } else {
+            return 0
+          }
         })
-        .catch((e) => console.error(e))
-    }
+
+        this.setState({
+          players: sortedPlayers,
+          loading: false,
+        })
+      })
+      .catch((e) => console.error(e))
+    // }
   }
 
   handleAddPlayerToGroup = (groupId, playerId, addOrRemove) => {
@@ -149,88 +141,61 @@ export default class App extends Component {
 
   handleCreatePlayer = () => {}
 
-  handleNavClick = () => {
-    this.setState({ navigated: true })
+  handleNavClick = (item) => {
+    this.setState({ navigated: true, activeItem: item })
+  }
+
+  setActiveItem = () => {
+    const path = window.location.pathname
+    let activeItem
+    if (path.indexOf('groups') > -1) {
+      activeItem = 'groups'
+    } else if (path.indexOf('sessions') > -1) {
+      activeItem = 'sessions'
+    } else if (path.indexOf('record-results') > -1) {
+      activeItem = 'record-results'
+    } else {
+      activeItem = 'players'
+    }
+    this.setState({ activeItem })
   }
 
   componentDidMount() {
+    this.setActiveItem()
     this.fetchGroups()
     this.fetchPlayers()
   }
 
   render() {
-    const { user, groups, players, loading } = this.state
-    console.log('render -> groups', groups)
+    const { user, groups, players, loading, activeItem } = this.state
     return (
       <Container style={{ padding: '1rem' }}>
-        {localStorage.getItem('token') ? (
-          <div path="/">
-            <Segment clearing>
-              <Header as="h1" floated="left">
-                WDCTT Ratings
-              </Header>
+        <div>
+          <Segment clearing>
+            <Header as="h1" floated="left">
+              WDCTT Ratings
+            </Header>
+            {localStorage.getItem('token') ? (
               <Link to="/login" onClick={this.handleLogout}>
                 <Button floated="right">Log Out</Button>
               </Link>
-            </Segment>
-            <Message>
-              <Message.Header>
-                Application status: very much under construction
-              </Message.Header>
-              <Message.List>
-                <Message.Item>
-                  Right now, it pretty much just displays players (and their
-                  ratings), groups (and their players), and sessions.
-                </Message.Item>
-                <Message.Item>
-                  I've just started on the main interface for recording results
-                  and calculating ratings. It's in the "Record Results" tab.
-                </Message.Item>
-              </Message.List>
-            </Message>
-            <Menu tabular stackable>
-              <Link
-                to="/players"
-                onClick={() => this.handleNavClick('players')}
-              >
-                <Menu.Item
-                  name="players"
-                  active={window.location.href.indexOf('players') > -1}
-                />
+            ) : (
+              <Link to="/login">
+                <Button floated="right">Log In</Button>
               </Link>
-              <Link to="/groups" onClick={() => this.handleNavClick('groups')}>
-                <Menu.Item
-                  name="groups"
-                  active={window.location.href.indexOf('groups') > -1}
-                />
-              </Link>
-              <Link
-                to="/sessions"
-                onClick={() => this.handleNavClick('sessions')}
-              >
-                <Menu.Item
-                  name="sessions"
-                  active={window.location.href.indexOf('sessions') > -1}
-                />
-              </Link>
-              <Link
-                to="/record-results"
-                onClick={() => this.handleNavClick('record-results')}
-              >
-                <Menu.Item
-                  name="record results"
-                  icon="calculator"
-                  active={window.location.href.indexOf('record-results') > -1}
-                />
-              </Link>
-            </Menu>
-          </div>
-        ) : null}
+            )}
+          </Segment>
+          <Nav activeItem={activeItem} handleNavClick={this.handleNavClick} />
+          <Message
+            style={{ marginBottom: '1rem' }}
+            content="If you see something wrong, or have questions, email Oren Magid at oren.michael.magid@gmail.com."
+          />
+        </div>
         <Router>
-          {localStorage.getItem('token') ? (
-            <Segment path="/">
+          <Segment path="/">
+            <Fragment>
               <PlayerContainer
-                path="/players"
+                path="/"
                 loading={loading}
                 user={user}
                 groups={groups}
@@ -239,7 +204,7 @@ export default class App extends Component {
                 handleCreatePlayer={this.handleCreatePlayer}
               />
               <GroupContainer
-                path="/groups"
+                path="groups"
                 loading={loading}
                 user={user}
                 groups={groups}
@@ -247,12 +212,15 @@ export default class App extends Component {
                 handleAddPlayerToGroup={this.handleAddPlayerToGroup}
               />
               <SessionContainer path="/sessions" user={user} />
-              <CalculateRatings path="/record-results" user={user} />
-            </Segment>
-          ) : null}
-          {!localStorage.getItem('token') ? (
-            <LoginForm path="/login" handleLogin={this.handleLogin} />
-          ) : null}
+              {localStorage.getItem('token') ? (
+                <CalculateRatings path="/record-results" user={user} />
+              ) : null}
+            </Fragment>
+
+            {!localStorage.getItem('token') ? (
+              <LoginForm path="login" handleLogin={this.handleLogin} />
+            ) : null}
+          </Segment>
         </Router>
       </Container>
     )

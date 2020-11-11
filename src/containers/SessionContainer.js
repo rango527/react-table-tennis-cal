@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import SessionTable from '../components/SessionTable'
 import MatchesTable from '../components/MatchesTable'
 import { Loader } from 'semantic-ui-react'
-import { baseUrl } from '../constants'
+import { baseUrl, HEADERS } from '../constants'
 
 export default class SessionContainer extends Component {
   state = {
@@ -12,19 +12,17 @@ export default class SessionContainer extends Component {
   }
 
   fetchSessions = () => {
-    let token = localStorage.getItem('token')
-    if (token) {
-      fetch(baseUrl + '/sessions', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+    // let token = localStorage.getItem('token')
+    // if (token) {
+    fetch(baseUrl + '/sessions', {
+      // headers: HEADERS,
+    })
+      .then((res) => res.json())
+      .then((sessions) => {
+        this.setState({ sessions })
       })
-        .then((res) => res.json())
-        .then((sessions) => {
-          this.setState({ sessions })
-        })
-        .catch((e) => console.error(e))
-    }
+      .catch((e) => console.error(e))
+    // }
   }
 
   handleSessionClick = (e, session_id) => {

@@ -106,11 +106,9 @@ export default class GroupContainer extends Component {
       <Fragment>
         <Message
           attached
-          header="Who is in what group?"
-          content="Click on a group to see its members"
-          style={{ marginBottom: '1rem' }}
+          header="Groups"
+          content="Here's a list of groups for the current league. Click on a group to see a list of players in that group."
         />
-
         {groups.length > 0 ? (
           <GroupTable
             groups={groups}

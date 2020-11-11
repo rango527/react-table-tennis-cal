@@ -37,3 +37,7 @@ export const datesAreOnSameDay = (first, second) => {
     first.getDate() === second.getDate()
   )
 }
+
+export const isAdmin = () => {
+  return localStorage.getItem('admin') === 'true'
+}

@@ -12,27 +12,45 @@ import {
 import { sortPlayerRatings, getFormattedDate } from '../utilities'
 
 export default class PlayerStats extends Component {
+  renderTooltip = (props) => {
+    if (!props.active) {
+      return null
+    } else {
+      const date = props.payload[0].payload.date
+      const rating = props.payload[0].payload.rating
+      const adjustment = props.payload[0].payload.adjustment
+
+      // we render the default, but with our overridden payload
+      return (
+        <div
+          style={{
+            background: 'white',
+            border: '1px solid rgb(136, 132, 216)',
+            padding: '.75rem .5rem',
+            borderRadius: '2px',
+          }}
+        >
+          <div>{date}</div>
+          <div style={{ color: 'rgb(136, 132, 216)' }}>
+            rating: {rating}
+            {adjustment ? ', adjusted: ' + adjustment : null}
+          </div>
+        </div>
+      )
+    }
+  }
   render() {
     const { player } = this.props
-    console.log('PlayerStats -> render -> player.ratings', player.ratings)
 
     const data = sortPlayerRatings(player).map((rating) => {
-      if (rating.session) {
-        console.log(
-          'PlayerStats -> render -> rating.session.date',
-          getFormattedDate(new Date(rating.session.date))
-        )
-      }
-
       return {
         date: rating.session
           ? getFormattedDate(new Date(rating.session.date))
           : 'start',
         rating: rating.value,
+        adjustment: rating.adjustment,
       }
     })
-
-    console.log('PlayerStats -> render -> data', data)
 
     const sortedRatings = player.ratings.sort((a, b) => {
       return b.value - a.value
@@ -63,7 +81,7 @@ export default class PlayerStats extends Component {
             type="number"
             domain={[Math.ceil(min / 100) * 100, Math.ceil(max / 100) * 100]}
           />
-          <Tooltip />
+          <Tooltip content={this.renderTooltip} />
           <Legend />
           <Line
             type="monotone"

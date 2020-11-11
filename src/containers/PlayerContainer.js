@@ -1,8 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import { Link } from '@reach/router'
-import PlayerStats from '../components/PlayerStats'
 import PlayerTable from '../components/PlayerTable'
-import { Loader, Button, Icon } from 'semantic-ui-react'
+import { Loader, Button, Icon, Message } from 'semantic-ui-react'
 
 export default class PlayerContainer extends Component {
   state = {
@@ -90,14 +89,21 @@ export default class PlayerContainer extends Component {
 
     return (
       <Fragment>
+        <Message
+          attached
+          header="Player Ratings"
+          content="Here's a list of player ratings. We started with the last rating maintained by Charlene before she left. So far, we don't have a ratings history that predates the beginning of March. If a player has played in the leagues and has multiple ratings, there will be a little chart icon by their name. Click on that to see their ratings history."
+        />
         {players.length > 0 && !loading ? (
           <Fragment>
-            <Link to="/players/create" onClick={handleCreatePlayer}>
-              <Button icon labelPosition="left" onClick={handleCreatePlayer}>
-                <Icon name="plus" />
-                Create Player
-              </Button>
-            </Link>
+            {localStorage.getItem('token') === true ? (
+              <Link to="/create-player" onClick={handleCreatePlayer}>
+                <Button icon labelPosition="left" onClick={handleCreatePlayer}>
+                  <Icon name="plus" />
+                  Create Player
+                </Button>
+              </Link>
+            ) : null}
             <PlayerTable
               loading={loading}
               user={user}
