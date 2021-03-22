@@ -1,5 +1,5 @@
-export const sortPlayerRatings = (player) => {
-  return player.ratings.sort((a, b) => {
+export const sortRatings = (ratings) => {
+  return ratings.sort((a, b) => {
     if (!a.session) {
       return -1
     }
@@ -14,7 +14,7 @@ export const sortPlayerRatings = (player) => {
 }
 
 export const mostRecentPlayerRating = (player) => {
-  const sortedRatings = sortPlayerRatings(player)
+  const sortedRatings = sortRatings(player.ratings)
   return sortedRatings[sortedRatings.length - 1]
 }
 
@@ -22,12 +22,12 @@ export const getFormattedDate = (date) => {
   var year = date.getFullYear()
 
   var month = (1 + date.getMonth()).toString()
-  month = month.length > 1 ? month : '0' + month
+  month = month.length > 1 ? month : "0" + month
 
   var day = date.getDate().toString()
-  day = day.length > 1 ? day : '0' + day
+  day = day.length > 1 ? day : "0" + day
 
-  return month + '/' + day + '/' + year
+  return month + "/" + day + "/" + year
 }
 
 export const datesAreOnSameDay = (first, second) => {
@@ -39,5 +39,12 @@ export const datesAreOnSameDay = (first, second) => {
 }
 
 export const isAdmin = () => {
-  return localStorage.getItem('admin') === 'true'
+  return localStorage.getItem("admin") === "true"
+}
+
+export const groupNameFromGroupId = (groups, groupId) => {
+  const group = groups.find((g) => {
+    return g.id === groupId
+  })
+  return group.name
 }

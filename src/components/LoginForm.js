@@ -1,12 +1,12 @@
-import React, { Component, Fragment } from 'react'
-import { Container, Form, Segment, Input, Button } from 'semantic-ui-react'
+import React, { Component } from "react"
+import { Container, Form, Segment, Input, Button } from "semantic-ui-react"
 
 class LoginForm extends Component {
   render() {
     const { handleLogin } = this.props
 
     return (
-      <Fragment>
+      <>
         <Container>
           <Form onSubmit={handleLogin}>
             <Segment stacked>
@@ -36,7 +36,7 @@ class LoginForm extends Component {
             <div className="ui error message" />
           </Form>
         </Container>
-      </Fragment>
+      </>
     )
   }
 }

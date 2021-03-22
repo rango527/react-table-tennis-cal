@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Table } from 'semantic-ui-react'
+import React, { Component } from "react"
+import { Table } from "semantic-ui-react"
 
 export default class MatchesTable extends Component {
   state = {}
@@ -8,7 +8,6 @@ export default class MatchesTable extends Component {
 
   render() {
     const { matches } = this.props
-    console.log('MatchesTable -> render -> matches', matches)
 
     return (
       <Table celled>

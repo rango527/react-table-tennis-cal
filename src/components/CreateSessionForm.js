@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react'
-import { Container, Form, Segment, Message, Loader } from 'semantic-ui-react'
-import Scorecard from './ScoreCard'
+import React, { Component } from "react"
+import { Container, Form, Segment, Message, Loader } from "semantic-ui-react"
+import Scorecard from "./ScoreCard"
 
-import { baseUrl, HEADERS } from '../constants'
+import { baseUrl, HEADERS } from "../constants"
 
 export default class CreateSessionForm extends Component {
   state = {
@@ -44,7 +44,6 @@ export default class CreateSessionForm extends Component {
     this.setState({ loading: true })
     const { date } = this.state
     const uniqueMatches = matches.filter((match) => match.count && match.played)
-    console.log('handleCreateSessionClick -> uniqueMatches', uniqueMatches)
 
     let data = {
       matches: uniqueMatches,
@@ -53,13 +52,12 @@ export default class CreateSessionForm extends Component {
     }
 
     fetch(`${baseUrl}/sessions`, {
-      method: 'POST',
+      method: "POST",
       headers: HEADERS,
       body: JSON.stringify(data),
     })
       .then((response) => response.json())
       .then((jsonData) => {
-        console.log('CreateSessionForm -> jsonData', jsonData)
         this.setState({ loading: false })
       })
   }
@@ -78,7 +76,7 @@ export default class CreateSessionForm extends Component {
     })
 
     return (
-      <Fragment>
+      <>
         <Container>
           <div>
             {!group && !loading ? (
@@ -104,7 +102,7 @@ export default class CreateSessionForm extends Component {
             ) : null}
 
             {group && !loading ? (
-              <Fragment>
+              <>
                 <Scorecard
                   date={date}
                   handleDateChange={this.handleDateChange}
@@ -118,12 +116,12 @@ export default class CreateSessionForm extends Component {
                     )
                   })}
                 />
-              </Fragment>
+              </>
             ) : null}
             {loading ? <Loader active inline="centered" /> : null}
           </div>
         </Container>
-      </Fragment>
+      </>
     )
   }
 }

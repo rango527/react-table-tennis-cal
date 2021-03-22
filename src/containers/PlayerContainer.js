@@ -1,7 +1,9 @@
-import React, { Component, Fragment } from 'react'
-import { Link } from '@reach/router'
-import PlayerTable from '../components/PlayerTable'
-import { Loader, Button, Icon, Message } from 'semantic-ui-react'
+import React, { Component } from "react"
+import { Link, Route } from "react-router-dom"
+import PlayerTable from "../components/PlayerTable"
+import PlayerStats from "../components/PlayerStats"
+
+import { Loader, Button, Icon, Message } from "semantic-ui-react"
 
 export default class PlayerContainer extends Component {
   state = {
@@ -17,14 +19,14 @@ export default class PlayerContainer extends Component {
     if (name === column) {
       sortedPlayers = players.reverse()
     } else {
-      if (name === 'rating') {
+      if (name === "rating") {
         sortedPlayers = players.sort((a, b) => {
           return (
             a.ratings[a.ratings.length - 1].value -
             b.ratings[b.ratings.length - 1].value
           )
         })
-      } else if (name === 'group') {
+      } else if (name === "group") {
         sortedPlayers = players.sort((a, b) => {
           if (a.groups.length === 0) {
             return -1
@@ -40,7 +42,7 @@ export default class PlayerContainer extends Component {
           }
           return 0
         })
-      } else if (name === 'email') {
+      } else if (name === "email") {
         sortedPlayers = players.sort((a, b) => {
           if (a.email < b.email) {
             return -1
@@ -50,7 +52,7 @@ export default class PlayerContainer extends Component {
           }
           return 0
         })
-      } else if (name === 'name') {
+      } else if (name === "name") {
         sortedPlayers = players.sort((a, b) => {
           if (a.name < b.name) {
             return -1
@@ -65,7 +67,7 @@ export default class PlayerContainer extends Component {
 
     this.setState({
       column: name,
-      direction: direction === 'ascending' ? 'descending' : 'ascending',
+      direction: direction === "ascending" ? "descending" : "ascending",
       sortedPlayers,
     })
   }
@@ -88,15 +90,19 @@ export default class PlayerContainer extends Component {
     } = this.props
 
     return (
-      <Fragment>
+      <>
         <Message
           attached
           header="Player Ratings"
           content="Here's a list of player ratings. We started with the last rating maintained by Charlene before she left. So far, we don't have a ratings history that predates the beginning of March. If a player has played in the leagues and has multiple ratings, there will be a little chart icon by their name. Click on that to see their ratings history."
         />
+        <Route
+          path={`/players/:playerId`}
+          render={(props) => <PlayerStats {...props} />}
+        />
         {players.length > 0 && !loading ? (
-          <Fragment>
-            {localStorage.getItem('token') === true ? (
+          <>
+            {localStorage.getItem("token") === true ? (
               <Link to="/create-player" onClick={handleCreatePlayer}>
                 <Button icon labelPosition="left" onClick={handleCreatePlayer}>
                   <Icon name="plus" />
@@ -104,22 +110,24 @@ export default class PlayerContainer extends Component {
                 </Button>
               </Link>
             ) : null}
-            <PlayerTable
-              loading={loading}
-              user={user}
-              groups={groups}
-              players={sortedPlayers.length > 0 ? sortedPlayers : players}
-              column={column}
-              direction={direction}
-              handleHeaderClick={this.handleHeaderClick}
-              handleAddPlayerToGroup={handleAddPlayerToGroup}
-              handleShowPlayer={this.handleShowPlayer}
-            />
-          </Fragment>
+            <Route exact path="/players">
+              <PlayerTable
+                loading={loading}
+                user={user}
+                groups={groups}
+                players={sortedPlayers.length > 0 ? sortedPlayers : players}
+                column={column}
+                direction={direction}
+                handleHeaderClick={this.handleHeaderClick}
+                handleAddPlayerToGroup={handleAddPlayerToGroup}
+                handleShowPlayer={this.handleShowPlayer}
+              />
+            </Route>
+          </>
         ) : (
-          <Loader style={{ marginTop: '1rem' }} active inline="centered" />
+          <Loader style={{ marginTop: "1rem" }} active inline="centered" />
         )}
-      </Fragment>
+      </>
     )
   }
 }
