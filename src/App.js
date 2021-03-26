@@ -215,9 +215,12 @@ export default class App extends Component {
                 <SessionContainer user={user} />
               </Route>
               {localStorage.getItem("token") ? (
-                <Route path="/record-results">
-                  <CalculateRatings path="/record-results" user={user} />
-                </Route>
+                <Route
+                  path="/record-results"
+                  render={(props) => (
+                    <CalculateRatings path="/record-results" {...props} />
+                  )}
+                ></Route>
               ) : null}
             </Segment>
           </Switch>

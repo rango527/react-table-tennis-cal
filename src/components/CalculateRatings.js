@@ -33,7 +33,7 @@ export default class SessionContainer extends Component {
 
     return (
       <>
-        <CreateSessionForm groups={groups} />
+        <CreateSessionForm groups={groups} {...this.props} />
       </>
     )
   }

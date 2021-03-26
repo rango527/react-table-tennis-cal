@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import { Route } from "react-router-dom"
 import { Container, Form, Segment, Message, Loader } from "semantic-ui-react"
 import Scorecard from "./ScoreCard"
 
@@ -34,6 +35,7 @@ export default class CreateSessionForm extends Component {
       : null
 
     this.setState({ group_id: group_id, date: defaultDate })
+    this.props.history.push(`/record-results/${group_id}`)
   }
 
   handleRemoveGroup = () => {
@@ -60,6 +62,7 @@ export default class CreateSessionForm extends Component {
       .then((jsonData) => {
         this.setState({ loading: false })
       })
+    this.props.history.push(`/groups/${group_id}`)
   }
 
   render() {
@@ -103,19 +106,19 @@ export default class CreateSessionForm extends Component {
 
             {group && !loading ? (
               <>
-                <Scorecard
-                  date={date}
-                  handleDateChange={this.handleDateChange}
-                  handleCreateSessionClick={this.handleCreateSessionClick}
-                  handleRemoveGroup={this.handleRemoveGroup}
-                  group_id={group_id}
-                  players={group.players.sort((a, b) => {
-                    return (
-                      b.ratings[b.ratings.length - 1].value -
-                      a.ratings[a.ratings.length - 1].value
-                    )
-                  })}
-                />
+                <Route
+                  path={`/record-results/:groupId`}
+                  render={(props) => (
+                    <Scorecard
+                      date={date}
+                      handleDateChange={this.handleDateChange}
+                      handleCreateSessionClick={this.handleCreateSessionClick}
+                      handleRemoveGroup={this.handleRemoveGroup}
+                      group_id={group_id}
+                      {...props}
+                    />
+                  )}
+                ></Route>
               </>
             ) : null}
             {loading ? <Loader active inline="centered" /> : null}

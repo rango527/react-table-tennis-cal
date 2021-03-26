@@ -1,20 +1,23 @@
-import React, { Component } from 'react'
-import { Table, Button, Message, Segment, Icon, Form } from 'semantic-ui-react'
-import ChoiceOfWinner from './ChoiceOfWinner'
-import ResultsTable from './ResultsTable'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
-import 'react-datepicker/dist/react-datepicker-cssmodules.css'
+import React, { Component } from "react"
+import { baseUrl } from "../constants"
+import { Link } from "react-router-dom"
+import { Table, Button, Message, Segment, Icon, Form } from "semantic-ui-react"
+import ChoiceOfWinner from "./ChoiceOfWinner"
+import ResultsTable from "./ResultsTable"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import "react-datepicker/dist/react-datepicker-cssmodules.css"
 
 export default class ScoreCard extends Component {
   state = {
+    loading: true,
+    players: [],
     matches: [],
     inactivePlayerIds: [],
   }
 
   handleClick = (index, i) => {
-    const { players } = this.props
-    const { matches } = this.state
+    const { matches, players } = this.state
 
     let oneMatchIndex
     let anotherMatchIndex
@@ -27,15 +30,15 @@ export default class ScoreCard extends Component {
     }
 
     const anotherMatchProgression = {
-      'pointing up': { icon: 'pointing left', size: 'huge', played: true },
-      'pointing left': { icon: 'close', size: 'huge', played: false },
-      close: { icon: 'pointing up', size: 'large', played: true },
+      "pointing up": { icon: "pointing left", size: "huge", played: true },
+      "pointing left": { icon: "close", size: "huge", played: false },
+      close: { icon: "pointing up", size: "large", played: true },
     }
 
     const oneMatchProgression = {
-      'pointing left': { icon: 'pointing up', size: 'huge', played: true },
-      'pointing up': { icon: 'close', size: 'huge', played: false },
-      close: { icon: 'pointing left', size: 'large', played: true },
+      "pointing left": { icon: "pointing up", size: "huge", played: true },
+      "pointing up": { icon: "close", size: "huge", played: false },
+      close: { icon: "pointing left", size: "large", played: true },
     }
 
     const oneMatch = matches[oneMatchIndex]
@@ -43,7 +46,7 @@ export default class ScoreCard extends Component {
     oneMatch.size = oneMatchProgression[oneMatch.icon].size
     oneMatch.played = oneMatchProgression[oneMatch.icon].played
     oneMatch.icon = oneMatchProgression[oneMatch.icon].icon
-    if (oneMatch.icon !== 'close') {
+    if (oneMatch.icon !== "close") {
       ;[oneMatch.winner, oneMatch.loser] = [oneMatch.loser, oneMatch.winner]
     }
     matches[oneMatchIndex] = oneMatch
@@ -53,7 +56,7 @@ export default class ScoreCard extends Component {
     anotherMatch.size = anotherMatchProgression[anotherMatch.icon].size
     anotherMatch.played = anotherMatchProgression[anotherMatch.icon].played
     anotherMatch.icon = anotherMatchProgression[anotherMatch.icon].icon
-    if (anotherMatch.icon !== 'close') {
+    if (anotherMatch.icon !== "close") {
       ;[anotherMatch.winner, anotherMatch.loser] = [
         anotherMatch.loser,
         anotherMatch.winner,
@@ -93,7 +96,7 @@ export default class ScoreCard extends Component {
   }
 
   setMatches = () => {
-    const { players } = this.props
+    const { players } = this.state
     const matches = []
 
     players.forEach((player, index) => {
@@ -101,8 +104,8 @@ export default class ScoreCard extends Component {
         if (index !== i) {
           const winner = index < i ? player : p
           const loser = index > i ? player : p
-          const icon = index > i ? 'pointing up' : 'pointing left'
-          const size = 'large'
+          const icon = index > i ? "pointing up" : "pointing left"
+          const size = "large"
           const count = index < i ? true : false
           const played = true
           const hide = false
@@ -113,28 +116,50 @@ export default class ScoreCard extends Component {
     this.setState({ matches })
   }
 
-  componentDidMount = () => {
-    this.setMatches()
+  fetchGroupAndSetMatches = () => {
+    const { groupId } = this.props.match.params
+    fetch(baseUrl + `/groups/${groupId}`, {})
+      .then((res) => res.json())
+      .then((group) => {
+        const sortedPlayers = group.players.sort((a, b) => {
+          if (a.most_recent_rating && b.most_recent_rating) {
+            return b.most_recent_rating - a.most_recent_rating
+          } else {
+            return 0
+          }
+        })
+        this.setState({
+          loading: false,
+          players: sortedPlayers,
+        })
+      })
+      .catch((e) => console.error(e))
+      .then(() => this.setMatches())
+  }
+  componentDidMount() {
+    this.fetchGroupAndSetMatches()
   }
 
   render() {
     const {
-      players,
       handleRemoveGroup,
       handleCreateSessionClick,
       group_id,
       handleDateChange,
       date,
     } = this.props
+    const { players } = this.state
 
     const { matches } = this.state
     return (
       <Segment>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Button icon labelPosition="left" onClick={handleRemoveGroup}>
-            <Icon name="close" />
-            Cancel Session
-          </Button>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <Link to="/record-results" onClick={handleRemoveGroup}>
+            <Button icon labelPosition="left">
+              <Icon name="close" />
+              Cancel Session
+            </Button>
+          </Link>
           <Form>
             <Form.Field>
               <DatePicker
@@ -159,17 +184,17 @@ export default class ScoreCard extends Component {
         </div>
 
         <Message
-          style={{ marginTop: '2rem' }}
+          style={{ marginTop: "2rem" }}
           content="The scorecard will default with the expected winners prefilled. You'll then be able to delete players that didn't show, change the winner where the underdog prevailed, and save the session and calculate ratings."
         />
 
         <Table unstackable celled fixed size="large">
           <Table.Header>
-            <Table.Row key="upper left space" style={{ height: '5rem' }}>
+            <Table.Row key="upper left space" style={{ height: "5rem" }}>
               <Table.Cell
                 style={{
-                  width: '5rem',
-                  borderBottom: '1px solid rgba(34, 36, 38, 0.15)',
+                  width: "5rem",
+                  borderBottom: "1px solid rgba(34, 36, 38, 0.15)",
                 }}
               ></Table.Cell>
               {players.map((player) => {
@@ -177,17 +202,17 @@ export default class ScoreCard extends Component {
                   <Table.Cell
                     key={player.name}
                     style={{
-                      position: 'sticky',
+                      position: "sticky",
                       top: 0,
-                      width: '5rem',
-                      backgroundColor: 'white',
-                      borderBottom: '1px solid rgba(34, 36, 38, 0.15)',
+                      width: "5rem",
+                      backgroundColor: "white",
+                      borderBottom: "1px solid rgba(34, 36, 38, 0.15)",
                     }}
                   >
                     <Icon
                       name="close"
                       size="small"
-                      style={{ position: 'absolute', top: '.25rem', right: 0 }}
+                      style={{ position: "absolute", top: ".25rem", right: 0 }}
                       onClick={() => this.handleInactivate(player)}
                     />
                     {player.name}
@@ -200,23 +225,23 @@ export default class ScoreCard extends Component {
           <Table.Body>
             {players.map((player, index) => {
               return (
-                <Table.Row key={player.name} style={{ height: '5rem' }}>
+                <Table.Row key={player.name} style={{ height: "5rem" }}>
                   <Table.Cell>{player.name}</Table.Cell>
                   {players.map((p, i) => {
                     return (
                       <Table.Cell
                         key={p.name}
                         style={{
-                          fontSize: '10px',
-                          textAlign: 'center',
+                          fontSize: "10px",
+                          textAlign: "center",
                         }}
                       >
                         {matches.length === 0 || index === i ? (
                           <div
                             style={{
-                              backgroundColor: 'grey',
-                              width: '4rem',
-                              height: '4rem',
+                              backgroundColor: "grey",
+                              width: "4rem",
+                              height: "4rem",
                             }}
                           ></div>
                         ) : index > i ? (
