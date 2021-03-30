@@ -24,10 +24,10 @@ export default class SessionTable extends Component {
           </Table.Header>
 
           <Table.Body>
-            {sessions.map((session) => {
+            {sessions.map((session, i) => {
               return (
                 <Table.Row
-                  key={session.date}
+                  key={session.date + i}
                   onClick={(e) => handleSessionClick(e, session.id)}
                   active={activeItem === session.id}
                 >

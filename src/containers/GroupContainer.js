@@ -30,6 +30,7 @@ export default class GroupContainer extends Component {
         //     }
         //   }),
       })
+      this.props.history.push(`/groups/${group_id}`)
     }
   }
 

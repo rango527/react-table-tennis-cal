@@ -18,7 +18,6 @@ import CalculateRatings from "./components/CalculateRatings"
 export default class App extends Component {
   state = {
     loading: false,
-    activeItem: "players",
     groups: [],
     players: [],
     loggedIn: false,
@@ -128,33 +127,13 @@ export default class App extends Component {
 
   handleCreatePlayer = () => {}
 
-  handleNavClick = (item) => {
-    this.setState({ navigated: true, activeItem: item })
-  }
-
-  setActiveItem = () => {
-    const path = window.location.pathname
-    let activeItem
-    if (path.indexOf("groups") > -1) {
-      activeItem = "groups"
-    } else if (path.indexOf("sessions") > -1) {
-      activeItem = "sessions"
-    } else if (path.indexOf("record-results") > -1) {
-      activeItem = "record-results"
-    } else {
-      activeItem = "players"
-    }
-    this.setState({ activeItem })
-  }
-
   componentDidMount() {
-    this.setActiveItem()
     this.fetchGroups()
     this.fetchPlayers()
   }
 
   render() {
-    const { user, groups, players, loading, activeItem } = this.state
+    const { user, groups, players, loading } = this.state
     return (
       <Router>
         <Container style={{ padding: "1rem" }}>
@@ -173,7 +152,8 @@ export default class App extends Component {
                 </Link>
               )}
             </Segment>
-            <Nav activeItem={activeItem} handleNavClick={this.handleNavClick} />
+            <Route path="/" render={(props) => <Nav {...props} />}></Route>
+
             <Message
               style={{ marginBottom: "1rem" }}
               content="If you see something wrong, or have questions, email Oren Magid at oren.michael.magid@gmail.com."
@@ -191,29 +171,38 @@ export default class App extends Component {
                   <Redirect to="/players" />
                 )}
               </Route>
-              <Route path="/players">
-                <PlayerContainer
-                  loading={loading}
-                  user={user}
-                  groups={groups}
-                  players={players}
-                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                  handleCreatePlayer={this.handleCreatePlayer}
-                />
-              </Route>
+              <Route
+                path="/players"
+                render={(props) => (
+                  <PlayerContainer
+                    loading={loading}
+                    user={user}
+                    groups={groups}
+                    players={players}
+                    handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+                    handleCreatePlayer={this.handleCreatePlayer}
+                    {...props}
+                  />
+                )}
+              ></Route>
 
-              <Route path="/groups">
-                <GroupContainer
-                  loading={loading}
-                  user={user}
-                  groups={groups}
-                  players={players}
-                  handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                />
-              </Route>
-              <Route path="/sessions">
-                <SessionContainer user={user} />
-              </Route>
+              <Route
+                path="/groups"
+                render={(props) => (
+                  <GroupContainer
+                    loading={loading}
+                    user={user}
+                    groups={groups}
+                    players={players}
+                    handleAddPlayerToGroup={this.handleAddPlayerToGroup}
+                    {...props}
+                  />
+                )}
+              ></Route>
+              <Route
+                path="/results"
+                render={(props) => <SessionContainer user={user} {...props} />}
+              ></Route>
               {localStorage.getItem("token") ? (
                 <Route
                   path="/record-results"

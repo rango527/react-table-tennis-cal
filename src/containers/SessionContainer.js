@@ -1,4 +1,5 @@
 import React, { Component } from "react"
+import { Route } from "react-router-dom"
 import SessionTable from "../components/SessionTable"
 import MatchesTable from "../components/MatchesTable"
 import { Loader } from "semantic-ui-react"
@@ -7,7 +8,6 @@ import { baseUrl } from "../constants"
 export default class SessionContainer extends Component {
   state = {
     sessions: [],
-    matches: [],
     activeItem: null,
   }
 
@@ -26,6 +26,7 @@ export default class SessionContainer extends Component {
       activeItem: session_id,
       matches: sessions.find((session) => session.id === session_id).matches,
     })
+    this.props.history.push(`/results/${session_id}`)
   }
 
   componentDidMount() {
@@ -33,21 +34,31 @@ export default class SessionContainer extends Component {
   }
 
   render() {
-    const { sessions, activeItem, matches } = this.state
+    const { sessions, activeItem } = this.state
 
     return (
       <>
+        <Route
+          path={`/results/:sessionId`}
+          render={(props) => <MatchesTable {...props} />}
+        ></Route>
+
         {sessions.length > 0 ? (
-          <SessionTable
-            sessions={sessions}
-            activeItem={activeItem}
-            handleSessionClick={this.handleSessionClick}
-          />
+          <Route
+            exact
+            path={`/results`}
+            render={(props) => (
+              <SessionTable
+                sessions={sessions}
+                activeItem={activeItem}
+                handleSessionClick={this.handleSessionClick}
+                {...props}
+              />
+            )}
+          ></Route>
         ) : (
           <Loader style={{ marginTop: "1rem" }} active inline="centered" />
         )}
-
-        {activeItem ? <MatchesTable matches={matches} /> : null}
       </>
     )
   }

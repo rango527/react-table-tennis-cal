@@ -1,6 +1,4 @@
 import React, { Component } from "react"
-import { Link } from "react-router-dom"
-
 import { Table, Message } from "semantic-ui-react"
 
 export default class GroupListTable extends Component {
@@ -24,16 +22,12 @@ export default class GroupListTable extends Component {
           <Table.Body>
             {groups.map((group) => {
               return (
-                <Table.Row active={group.id === activeItem} key={group.name}>
-                  <Table.Cell>
-                    <Link
-                      to={`/groups/${group.id}`}
-                      style={{ color: "inherit" }}
-                      onClick={(e) => handleGroupClick(e, group.id)}
-                    >
-                      {group.name}
-                    </Link>
-                  </Table.Cell>
+                <Table.Row
+                  active={group.id === activeItem}
+                  key={group.name}
+                  onClick={(e) => handleGroupClick(e, group.id)}
+                >
+                  <Table.Cell>{group.name}</Table.Cell>
                 </Table.Row>
               )
             })}

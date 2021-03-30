@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import { Table } from 'semantic-ui-react'
+import React, { Component } from "react"
+import { Table } from "semantic-ui-react"
 
 export default class ResultsTable extends Component {
   state = {}
@@ -21,9 +21,9 @@ export default class ResultsTable extends Component {
         </Table.Header>
 
         <Table.Body>
-          {matchesToReport.map((match) => {
+          {matchesToReport.map((match, i) => {
             return (
-              <Table.Row key={match.id}>
+              <Table.Row key={match.id + i}>
                 <Table.Cell>{match.winner.name}</Table.Cell>
                 <Table.Cell>{match.loser.name}</Table.Cell>
               </Table.Row>
