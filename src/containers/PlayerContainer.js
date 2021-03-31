@@ -91,11 +91,6 @@ export default class PlayerContainer extends Component {
 
     return (
       <>
-        <Message
-          attached
-          header="Player Ratings"
-          content="Here's a list of player ratings. We started with the last rating maintained by Charlene before she left. So far, we don't have a ratings history that predates the beginning of March. If a player has played in the leagues and has multiple ratings, there will be a little chart icon by their name. Click on that to see their ratings history."
-        />
         <Route
           path={`/players/:playerId`}
           render={(props) => <PlayerStats {...props} />}
@@ -111,6 +106,11 @@ export default class PlayerContainer extends Component {
               </Link>
             ) : null}
             <Route exact path="/players">
+              <Message
+                attached
+                header="Player Ratings"
+                content="Here's a list of player ratings. We started with the last rating maintained by Charlene before she left. So far, we don't have a ratings history that predates the beginning of March. If a player has played in the leagues and has multiple ratings, there will be a little chart icon by their name. Click on that to see their ratings history."
+              />
               <PlayerTable
                 loading={loading}
                 user={user}
