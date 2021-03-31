@@ -18,16 +18,50 @@ export const mostRecentPlayerRating = (player) => {
   return sortedRatings[sortedRatings.length - 1]
 }
 
-export const getFormattedDate = (date) => {
-  var year = date.getFullYear()
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+]
 
-  var month = (1 + date.getMonth()).toString()
-  month = month.length > 1 ? month : "0" + month
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+]
 
-  var day = date.getDate().toString()
-  day = day.length > 1 ? day : "0" + day
+export const getFormattedDate = (date, fullFormat = false) => {
+  date = new Date(date)
 
-  return month + "/" + day + "/" + year
+  if (fullFormat) {
+    const year = date.getFullYear()
+    const dayNumber = date.getDate()
+    const monthName = months[date.getMonth()]
+    const dayName = days[date.getDay()]
+
+    return `${dayName}, ${monthName} ${dayNumber}, ${year}`
+  } else {
+    const year = date.getFullYear()
+    let month = (1 + date.getMonth()).toString()
+    month = month.length > 1 ? month : "0" + month
+    let day = date.getDate().toString()
+    day = day.length > 1 ? day : "0" + day
+
+    return month + "/" + day + "/" + year
+  }
 }
 
 export const datesAreOnSameDay = (first, second) => {

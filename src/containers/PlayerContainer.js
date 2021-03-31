@@ -1,9 +1,8 @@
 import React, { Component } from "react"
 import { Link, Route } from "react-router-dom"
+import { Loader, Button, Icon, Message } from "semantic-ui-react"
 import PlayerTable from "../components/PlayerTable"
 import PlayerStats from "../components/PlayerStats"
-
-import { Loader, Button, Icon, Message } from "semantic-ui-react"
 
 export default class PlayerContainer extends Component {
   state = {
@@ -106,11 +105,20 @@ export default class PlayerContainer extends Component {
               </Link>
             ) : null}
             <Route exact path="/players">
-              <Message
-                attached
-                header="Player Ratings"
-                content="Here's a list of player ratings. We started with the last rating maintained by Charlene before she left. So far, we don't have a ratings history that predates the beginning of March. If a player has played in the leagues and has multiple ratings, there will be a little chart icon by their name. Click on that to see their ratings history."
-              />
+              <Message attached>
+                <div className="content">
+                  <div className="header">Player Ratings</div>
+                  <p>
+                    Here's a list of player ratings. We started with the last
+                    rating maintained by Charlene before she left. We don't have
+                    a ratings history that predates the beginning of March, when
+                    we restarted the league, but if a player has played in the
+                    league since the restart, there will be a little chart icon{" "}
+                    <Icon name="chart line" /> by their name. Click on that to
+                    see their ratings history.
+                  </p>
+                </div>
+              </Message>
               <PlayerTable
                 loading={loading}
                 user={user}

@@ -71,7 +71,7 @@ export default class PlayerStats extends Component {
       (rating) => {
         return {
           date: rating.session
-            ? getFormattedDate(new Date(rating.session.date))
+            ? getFormattedDate(rating.session.date)
             : "start",
           rating: rating.value,
           adjustment: rating.adjustment,

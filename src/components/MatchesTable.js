@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import { Table, Loader, Message } from "semantic-ui-react"
 import CloseButton from "./elements/CloseButton"
 import { baseUrl } from "../constants"
+import { getFormattedDate } from "../utilities"
 
 export default class MatchesTable extends Component {
   state = {
@@ -49,7 +50,7 @@ export default class MatchesTable extends Component {
             <CloseButton handleClick={() => window.history.back()} />
             <Message
               attached
-              header={`Results: ${new Date(session.date).toDateString()}`}
+              header={`Results for ${getFormattedDate(session.date, true)}`}
             />
             <Table celled>
               <Table.Header>

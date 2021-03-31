@@ -1,5 +1,6 @@
 import React, { Component } from "react"
 import { Table, Message } from "semantic-ui-react"
+import { getFormattedDate } from "../utilities"
 
 export default class SessionTable extends Component {
   state = {}
@@ -31,9 +32,7 @@ export default class SessionTable extends Component {
                   onClick={(e) => handleSessionClick(e, session.id)}
                   active={activeItem === session.id}
                 >
-                  <Table.Cell>
-                    {new Date(session.date).toDateString()}
-                  </Table.Cell>
+                  <Table.Cell>{getFormattedDate(session.date)}</Table.Cell>
                   <Table.Cell>{session.group.name}</Table.Cell>
                 </Table.Row>
               )
