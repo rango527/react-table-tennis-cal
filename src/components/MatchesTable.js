@@ -1,5 +1,6 @@
 import React, { Component } from "react"
-import { Table, Loader, Message, Icon } from "semantic-ui-react"
+import { Table, Loader, Message } from "semantic-ui-react"
+import CloseButton from "./elements/CloseButton"
 import { baseUrl } from "../constants"
 
 export default class MatchesTable extends Component {
@@ -45,9 +46,7 @@ export default class MatchesTable extends Component {
       <>
         {!loading && matches.length > 0 ? (
           <>
-            <div style={{ textAlign: "right" }}>
-              <Icon name="close" onClick={() => window.history.back()} />
-            </div>
+            <CloseButton handleClick={() => window.history.back()} />
             <Message
               attached
               header={`Results: ${new Date(session.date).toDateString()}`}

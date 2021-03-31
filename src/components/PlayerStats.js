@@ -1,5 +1,5 @@
 import React, { Component } from "react"
-import { Header, Loader, Segment, Icon } from "semantic-ui-react"
+import { Header, Loader, Segment } from "semantic-ui-react"
 import {
   LineChart,
   Line,
@@ -11,6 +11,7 @@ import {
   ResponsiveContainer,
 } from "recharts"
 import { baseUrl } from "../constants"
+import CloseButton from "./elements/CloseButton"
 import { sortRatings, getFormattedDate } from "../utilities"
 
 export default class PlayerStats extends Component {
@@ -93,9 +94,7 @@ export default class PlayerStats extends Component {
 
     return (
       <Segment>
-        <div style={{ textAlign: "right" }}>
-          <Icon name="close" onClick={() => window.history.back()} />
-        </div>
+        <CloseButton handleClick={() => window.history.back()} />
         <div style={{ textAlign: "center" }}>
           <Header as="h2">{player.name}</Header>
           {!loading ? (
