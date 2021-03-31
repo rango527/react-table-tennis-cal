@@ -60,9 +60,11 @@ export default class CreateSessionForm extends Component {
     })
       .then((response) => response.json())
       .then((jsonData) => {
-        this.setState({ loading: false })
+        this.setState(
+          { loading: false },
+          this.props.history.push(`/groups/${group_id}`)
+        )
       })
-    this.props.history.push(`/groups/${group_id}`)
   }
 
   render() {
