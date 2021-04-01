@@ -16,10 +16,6 @@ export default class MatchesTable extends Component {
     fetch(baseUrl + `/sessions/${sessionId}`, {})
       .then((res) => res.json())
       .then((session) => {
-        console.log(
-          "🚀 ~ file: MatchesTable.js ~ line 16 ~ MatchesTable ~ .then ~ session",
-          session
-        )
         this.setState({
           sessionId,
           session: session,
@@ -62,21 +58,48 @@ export default class MatchesTable extends Component {
 
               <Table.Body>
                 {matches.map((match) => {
+                  const winner = match.players.find(
+                    (player) => player.id === match.winner_id
+                  )
+                  const loser = match.players.find(
+                    (player) => player.id !== match.winner_id
+                  )
+                  let winner_change
+                  let winner_color
+                  let loser_change
+                  let loser_color
+
+                  if (match.rating_change > 0) {
+                    winner_change = `+${match.rating_change}`
+                    winner_color = "#008F47"
+                    loser_change = `-${match.rating_change}`
+                    loser_color = "#F71735"
+                  } else if (match.rating_change === null) {
+                    winner_change = ``
+                    winner_color = "inherit"
+                    loser_change = ``
+                    loser_color = "inherit"
+                  } else {
+                    winner_change = `0`
+                    winner_color = "inherit"
+                    loser_change = `0`
+                    loser_color = "inherit"
+                  }
                   return (
                     <Table.Row key={match.id}>
                       <Table.Cell>
-                        {
-                          match.players.find(
-                            (player) => player.id === match.winner_id
-                          ).name
-                        }
+                        {winner.name} {match.rating_change !== null ? "(" : ""}
+                        <span style={{ color: winner_color }}>
+                          {winner_change}
+                        </span>
+                        {match.rating_change !== null ? ")" : ""}
                       </Table.Cell>
                       <Table.Cell>
-                        {
-                          match.players.find(
-                            (player) => player.id !== match.winner_id
-                          ).name
-                        }
+                        {loser.name} {match.rating_change !== null ? "(" : ""}
+                        <span style={{ color: loser_color }}>
+                          {loser_change}
+                        </span>
+                        {match.rating_change !== null ? ")" : ""}
                       </Table.Cell>
                     </Table.Row>
                   )
