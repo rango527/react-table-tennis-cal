@@ -73,7 +73,6 @@ export default function CreateSessionForm({ history, groups }) {
             <Form>
               <Message
                 attached
-                header="Not yet functional"
                 content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
               />
               <Segment stacked>

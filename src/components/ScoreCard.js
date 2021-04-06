@@ -1,24 +1,28 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import { baseUrl } from "../constants"
 import { Link } from "react-router-dom"
-import { Table, Button, Message, Segment, Icon, Form } from "semantic-ui-react"
-import ChoiceOfWinner from "./ChoiceOfWinner"
+import { Button, Message, Segment, Icon, Form } from "semantic-ui-react"
+import ScoreCardTable from "./ScoreCardTable"
 import ResultsTable from "./ResultsTable"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import "react-datepicker/dist/react-datepicker-cssmodules.css"
 
-export default class ScoreCard extends Component {
-  state = {
-    loading: true,
-    players: [],
-    matches: [],
-    inactivePlayerIds: [],
-  }
+export default function ScoreCard({
+  match,
+  handleRemoveGroup,
+  handleCreateSessionClick,
+  group_id,
+  handleDateChange,
+  date,
+}) {
+  const [loading, setLoading] = useState(true)
+  const [players, setPlayers] = useState([])
+  const [matches, setMatches] = useState([])
+  const [inactivePlayerIds, setInactivePlayerIds] = useState([])
 
-  handleClick = (index, i) => {
-    const { matches, players } = this.state
-
+  const handleClick = (index, i) => {
+    const stateMatches = [...matches]
     let oneMatchIndex
     let anotherMatchIndex
     if (index < i) {
@@ -41,7 +45,7 @@ export default class ScoreCard extends Component {
       close: { icon: "pointing left", size: "large", played: true },
     }
 
-    const oneMatch = matches[oneMatchIndex]
+    const oneMatch = stateMatches[oneMatchIndex]
 
     oneMatch.size = oneMatchProgression[oneMatch.icon].size
     oneMatch.played = oneMatchProgression[oneMatch.icon].played
@@ -49,9 +53,10 @@ export default class ScoreCard extends Component {
     if (oneMatch.icon !== "close") {
       ;[oneMatch.winner, oneMatch.loser] = [oneMatch.loser, oneMatch.winner]
     }
-    matches[oneMatchIndex] = oneMatch
 
-    const anotherMatch = matches[anotherMatchIndex]
+    stateMatches[oneMatchIndex] = oneMatch
+
+    const anotherMatch = stateMatches[anotherMatchIndex]
 
     anotherMatch.size = anotherMatchProgression[anotherMatch.icon].size
     anotherMatch.played = anotherMatchProgression[anotherMatch.icon].played
@@ -62,41 +67,36 @@ export default class ScoreCard extends Component {
         anotherMatch.winner,
       ]
     }
-    matches[anotherMatchIndex] = anotherMatch
+    stateMatches[anotherMatchIndex] = anotherMatch
 
-    this.setState({ matches })
+    setMatches(stateMatches)
   }
 
-  handleInactivate = (player) => {
-    const { matches } = this.state
-    let { inactivePlayerIds } = this.state
-
-    if (inactivePlayerIds.indexOf(player.id) > -1) {
-      inactivePlayerIds = inactivePlayerIds.filter((pid) => {
+  const handleInactivate = (player) => {
+    let filteredInactivePlayerIds = [...inactivePlayerIds]
+    if (filteredInactivePlayerIds.indexOf(player.id) > -1) {
+      filteredInactivePlayerIds = filteredInactivePlayerIds.filter((pid) => {
         return pid !== player.id
       })
     } else {
-      inactivePlayerIds.push(player.id)
+      filteredInactivePlayerIds.push(player.id)
     }
 
     const mappedMatches = matches.map((match) => {
       if (
-        inactivePlayerIds.indexOf(match.winner.id) > -1 ||
-        inactivePlayerIds.indexOf(match.loser.id) > -1
+        filteredInactivePlayerIds.indexOf(match.winner.id) > -1 ||
+        filteredInactivePlayerIds.indexOf(match.loser.id) > -1
       ) {
         return { ...match, played: false, hide: true }
       } else {
         return { ...match, played: true, hide: false }
       }
     })
-    this.setState({
-      inactivePlayerIds,
-      matches: mappedMatches,
-    })
+    setInactivePlayerIds(filteredInactivePlayerIds)
+    setMatches(mappedMatches)
   }
 
-  setMatches = () => {
-    const { players } = this.state
+  const setInitialMatches = (players) => {
     const matches = []
 
     players.forEach((player, index) => {
@@ -109,15 +109,24 @@ export default class ScoreCard extends Component {
           const count = index < i ? true : false
           const played = true
           const hide = false
-          matches.push({ winner, loser, icon, size, count, played, hide })
+          matches.push({
+            winner,
+            loser,
+            icon,
+            size,
+            count,
+            played,
+            hide,
+          })
         }
       })
     })
-    this.setState({ matches })
+
+    setMatches(matches)
   }
 
-  fetchGroupAndSetMatches = () => {
-    const { groupId } = this.props.match.params
+  const fetchGroupAndSetMatches = () => {
+    const { groupId } = match.params
     fetch(baseUrl + `/groups/${groupId}`, {})
       .then((res) => res.json())
       .then((group) => {
@@ -128,151 +137,59 @@ export default class ScoreCard extends Component {
             return 0
           }
         })
-        this.setState({
-          loading: false,
-          players: sortedPlayers,
-        })
+        setLoading(false)
+        setPlayers(sortedPlayers)
+        setInitialMatches(sortedPlayers)
       })
       .catch((e) => console.error(e))
-      .then(() => this.setMatches())
-  }
-  componentDidMount() {
-    this.fetchGroupAndSetMatches()
   }
 
-  render() {
-    const {
-      handleRemoveGroup,
-      handleCreateSessionClick,
-      group_id,
-      handleDateChange,
-      date,
-    } = this.props
-    const { players } = this.state
+  useEffect(() => {
+    fetchGroupAndSetMatches()
+  }, [])
 
-    const { matches } = this.state
-    return (
-      <Segment>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Link to="/record-results" onClick={handleRemoveGroup}>
-            <Button icon labelPosition="left">
-              <Icon name="close" />
-              Cancel Session
-            </Button>
-          </Link>
-          <Form>
-            <Form.Field>
-              <DatePicker
-                placeholderText="Date of Session"
-                selected={date}
-                onChange={handleDateChange}
-                // minDate={Date.now()}
-                // showTimeSelect
-                dateFormat="MM/dd/yyyy"
-              />
-            </Form.Field>
-          </Form>
-
-          <Button
-            icon
-            labelPosition="right"
-            onClick={() => handleCreateSessionClick(matches, group_id)}
-          >
-            Submit Session and Calculate Ratings
-            <Icon name="calculator" />
+  return (
+    <Segment>
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <Link to="/record-results" onClick={handleRemoveGroup}>
+          <Button icon labelPosition="left">
+            <Icon name="close" />
+            Cancel Session
           </Button>
-        </div>
+        </Link>
+        <Form>
+          <Form.Field>
+            <DatePicker
+              placeholderText="Date of Session"
+              selected={date}
+              onChange={handleDateChange}
+              dateFormat="MM/dd/yyyy"
+            />
+          </Form.Field>
+        </Form>
 
-        <Message
-          style={{ marginTop: "2rem" }}
-          content="The scorecard will default with the expected winners prefilled. You'll then be able to delete players that didn't show, change the winner where the underdog prevailed, and save the session and calculate ratings."
-        />
+        <Button
+          icon
+          labelPosition="right"
+          onClick={() => handleCreateSessionClick(matches, group_id)}
+        >
+          Submit Session and Calculate Ratings
+          <Icon name="calculator" />
+        </Button>
+      </div>
 
-        <Table unstackable celled fixed size="large">
-          <Table.Header>
-            <Table.Row key="upper left space" style={{ height: "5rem" }}>
-              <Table.Cell
-                style={{
-                  width: "5rem",
-                  borderBottom: "1px solid rgba(34, 36, 38, 0.15)",
-                }}
-              ></Table.Cell>
-              {players.map((player) => {
-                return (
-                  <Table.Cell
-                    key={player.name}
-                    style={{
-                      position: "sticky",
-                      top: 0,
-                      width: "5rem",
-                      backgroundColor: "white",
-                      borderBottom: "1px solid rgba(34, 36, 38, 0.15)",
-                    }}
-                  >
-                    <Icon
-                      name="close"
-                      size="small"
-                      style={{ position: "absolute", top: ".25rem", right: 0 }}
-                      onClick={() => this.handleInactivate(player)}
-                    />
-                    {player.name}
-                  </Table.Cell>
-                )
-              })}
-            </Table.Row>
-          </Table.Header>
+      <Message
+        style={{ marginTop: "2rem" }}
+        content="The scorecard will default with the expected winners prefilled. You'll then be able to delete players that didn't show, change the winner where the underdog prevailed, and save the session and calculate ratings."
+      />
 
-          <Table.Body>
-            {players.map((player, index) => {
-              return (
-                <Table.Row key={player.name} style={{ height: "5rem" }}>
-                  <Table.Cell>{player.name}</Table.Cell>
-                  {players.map((p, i) => {
-                    return (
-                      <Table.Cell
-                        key={p.name}
-                        style={{
-                          fontSize: "10px",
-                          textAlign: "center",
-                        }}
-                      >
-                        {matches.length === 0 || index === i ? (
-                          <div
-                            style={{
-                              backgroundColor: "grey",
-                              width: "4rem",
-                              height: "4rem",
-                            }}
-                          ></div>
-                        ) : index > i ? (
-                          <ChoiceOfWinner
-                            index={index}
-                            i={i}
-                            matchIndex={players.length * index + i - index}
-                            match={matches[players.length * index + i - index]}
-                            handleClick={this.handleClick}
-                          />
-                        ) : (
-                          <ChoiceOfWinner
-                            index={index}
-                            i={i}
-                            matchIndex={players.length * index + i - index - 1}
-                            match={
-                              matches[players.length * index + i - index - 1]
-                            }
-                            handleClick={this.handleClick}
-                          />
-                        )}
-                      </Table.Cell>
-                    )
-                  })}
-                </Table.Row>
-              )
-            })}
-          </Table.Body>
-        </Table>
-        <ResultsTable matches={matches} />
-      </Segment>
-    )
-  }
+      <ScoreCardTable
+        players={players}
+        handleInactivate={handleInactivate}
+        handleClick={handleClick}
+        matches={matches}
+      />
+      <ResultsTable matches={matches} />
+    </Segment>
+  )
 }
