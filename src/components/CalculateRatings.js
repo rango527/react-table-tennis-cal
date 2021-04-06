@@ -1,13 +1,11 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import CreateSessionForm from "../components/CreateSessionForm"
 import { baseUrl } from "../constants"
 
-export default class SessionContainer extends Component {
-  state = {
-    groups: [],
-  }
+export default function SessionContainer(props) {
+  const [groups, setGroups] = useState([])
 
-  fetchGroups = () => {
+  const fetchGroups = () => {
     let token = localStorage.getItem("token")
     if (token) {
       fetch(baseUrl + "/groups", {
@@ -17,24 +15,19 @@ export default class SessionContainer extends Component {
       })
         .then((res) => res.json())
         .then((groups) => {
-          this.setState({ groups })
+          setGroups(groups)
         })
         .catch((e) => console.error(e))
     }
   }
 
-  handleClick = () => {}
-  componentDidMount() {
-    this.fetchGroups()
-  }
+  useEffect(() => {
+    fetchGroups()
+  }, [])
 
-  render() {
-    const { groups } = this.state
-
-    return (
-      <>
-        <CreateSessionForm groups={groups} {...this.props} />
-      </>
-    )
-  }
+  return (
+    <>
+      <CreateSessionForm groups={groups} {...props} />
+    </>
+  )
 }

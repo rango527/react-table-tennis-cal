@@ -1,20 +1,21 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import { baseUrl } from "../constants"
 import PlayerTable from "./PlayerTable"
 import { Loader } from "semantic-ui-react"
 
-export default class GroupPlayerTable extends Component {
-  state = {
-    groupId: null,
-    column: null,
-    direction: null,
-    sortedPlayers: [],
-    loading: true,
-  }
+export default function GroupPlayerTable({
+  user,
+  groups,
+  match,
+  handleAddPlayerToGroup: handleAddPlayerToGroupFromProps,
+}) {
+  const [groupId, setGroupId] = useState(null)
+  const [column, setColumn] = useState(null)
+  const [direction, setDirection] = useState(null)
+  const [sortedPlayers, setSortedPlayers] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  handleHeaderClick = (e, name) => {
-    let { direction, sortedPlayers, column } = this.state
-
+  const handleHeaderClick = (e, name) => {
     if (name === column) {
       sortedPlayers = sortedPlayers.reverse()
     } else {
@@ -58,25 +59,19 @@ export default class GroupPlayerTable extends Component {
       }
     }
 
-    this.setState({
-      column: name,
-      direction: direction === "ascending" ? "descending" : "ascending",
-      sortedPlayers,
-    })
+    setColumn(name)
+    setDirection(direction === "ascending" ? "descending" : "ascending")
+    setSortedPlayers(sortedPlayers)
   }
 
-  handleAddPlayerToGroup = (group_id, player_id, addOrRemove = "add") => {
-    const { handleAddPlayerToGroup } = this.props
+  const handleAddPlayerToGroup = (group_id, player_id, addOrRemove = "add") => {
+    setSortedPlayers([])
 
-    this.setState({
-      sortedPlayers: [],
-    })
-
-    handleAddPlayerToGroup(group_id, player_id, addOrRemove)
+    handleAddPlayerToGroupFromProps(group_id, player_id, addOrRemove)
   }
 
-  fetchGroup = () => {
-    const { groupId } = this.props.match.params
+  const fetchGroup = () => {
+    const { groupId } = match.params
     fetch(baseUrl + `/groups/${groupId}`, {})
       .then((res) => res.json())
       .then((group) => {
@@ -87,44 +82,32 @@ export default class GroupPlayerTable extends Component {
             return 0
           }
         })
-        this.setState({
-          groupId,
-          sortedPlayers,
-          loading: false,
-        })
+        setGroupId(groupId)
+        setSortedPlayers(sortedPlayers)
+        setLoading(false)
       })
       .catch((e) => console.error(e))
   }
-  componentDidMount() {
-    this.fetchGroup()
-  }
-  componentDidUpdate() {
-    const { groupId: urlGroupId } = this.props.match.params
-    const { groupId: stateGroupId } = this.state
 
-    if (urlGroupId !== stateGroupId) this.fetchGroup()
-  }
+  useEffect(() => {
+    fetchGroup()
+  }, [match.params.groupId])
 
-  render() {
-    const { column, direction, sortedPlayers, loading } = this.state
-    const { user, groups } = this.props
-
-    return (
-      <>
-        {!loading && sortedPlayers.length > 0 && groups.length > 0 ? (
-          <PlayerTable
-            user={user}
-            groups={groups}
-            column={column}
-            direction={direction}
-            players={sortedPlayers}
-            handleHeaderClick={this.handleHeaderClick}
-            handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-          />
-        ) : (
-          <Loader style={{ marginTop: "1rem" }} active inline="centered" />
-        )}
-      </>
-    )
-  }
+  return (
+    <>
+      {!loading && sortedPlayers.length > 0 && groups.length > 0 ? (
+        <PlayerTable
+          user={user}
+          groups={groups}
+          column={column}
+          direction={direction}
+          players={sortedPlayers}
+          handleHeaderClick={handleHeaderClick}
+          handleAddPlayerToGroup={handleAddPlayerToGroup}
+        />
+      ) : (
+        <Loader style={{ marginTop: "1rem" }} active inline="centered" />
+      )}
+    </>
+  )
 }

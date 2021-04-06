@@ -1,50 +1,44 @@
-import React, { Component } from "react"
+import React, { useState } from "react"
 import { Route } from "react-router-dom"
 import { Container, Form, Segment, Message, Loader } from "semantic-ui-react"
 import Scorecard from "./ScoreCard"
 
 import { baseUrl, HEADERS } from "../constants"
 
-export default class CreateSessionForm extends Component {
-  state = {
-    date: null,
-    group_id: null,
-    loading: false,
-  }
-  handleDateChange = (date) => {
-    this.setState({
-      date,
-    })
-  }
-  handleGroupChange = (e, { value }) => {
-    const { groups } = this.props
+export default function CreateSessionForm({ history, groups }) {
+  const [date, setDate] = useState(null)
+  const [group_id, set_group_id] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-    const group_id = value
-    const group = group_id
-      ? groups.find((group) => group_id === group.id)
-      : null
+  const handleDateChange = (date) => {
+    setDate(date)
+  }
+
+  const handleGroupChange = (e, { value }) => {
+    const groupId = value
+    const group = groupId ? groups.find((group) => groupId === group.id) : null
     const todayDayOfWeek = new Date().getDay()
 
-    let groupDayOfWeek = group_id ? group.day_of_week : null
+    let groupDayOfWeek = groupId ? group.day_of_week : null
 
     groupDayOfWeek =
       groupDayOfWeek > todayDayOfWeek ? groupDayOfWeek - 7 : groupDayOfWeek
 
-    const defaultDate = group_id
+    const defaultDate = groupId
       ? Date.now() - (todayDayOfWeek - groupDayOfWeek) * (3600 * 1000 * 24)
       : null
 
-    this.setState({ group_id: group_id, date: defaultDate })
-    this.props.history.push(`/record-results/${group_id}`)
+    set_group_id(groupId)
+    setDate(defaultDate)
+    history.push(`/record-results/${groupId}`)
   }
 
-  handleRemoveGroup = () => {
-    this.setState({ group_id: null })
+  const handleRemoveGroup = () => {
+    set_group_id(null)
   }
 
-  handleCreateSessionClick = (matches, group_id) => {
-    this.setState({ loading: true })
-    const { date } = this.state
+  const handleCreateSessionClick = (matches, group_id) => {
+    setLoading(true)
     const uniqueMatches = matches.filter((match) => match.count && match.played)
 
     let data = {
@@ -60,73 +54,63 @@ export default class CreateSessionForm extends Component {
     })
       .then((response) => response.json())
       .then((jsonData) => {
-        this.setState(
-          { loading: false },
-          this.props.history.push(`/groups/${group_id}`)
-        )
+        setLoading(false)
+        history.push(`/groups/${group_id}`)
       })
   }
 
-  render() {
-    const { group_id, date, loading } = this.state
+  const group = group_id ? groups.find((group) => group_id === group.id) : null
 
-    const { groups } = this.props
+  const groupOptions = groups.map((group) => {
+    return { key: group.name, text: group.name, value: group.id }
+  })
 
-    const group = group_id
-      ? groups.find((group) => group_id === group.id)
-      : null
+  return (
+    <>
+      <Container>
+        <div>
+          {!group && !loading ? (
+            <Form>
+              <Message
+                attached
+                header="Not yet functional"
+                content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
+              />
+              <Segment stacked>
+                <Form.Field>
+                  <Form.Dropdown
+                    placeholder="Select Group"
+                    fluid
+                    selection
+                    options={groupOptions}
+                    onChange={handleGroupChange}
+                  />
+                </Form.Field>
+              </Segment>
+              <div className="ui error message" />
+            </Form>
+          ) : null}
 
-    const groupOptions = groups.map((group) => {
-      return { key: group.name, text: group.name, value: group.id }
-    })
-
-    return (
-      <>
-        <Container>
-          <div>
-            {!group && !loading ? (
-              <Form>
-                <Message
-                  attached
-                  header="Not yet functional"
-                  content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
-                />
-                <Segment stacked>
-                  <Form.Field>
-                    <Form.Dropdown
-                      placeholder="Select Group"
-                      fluid
-                      selection
-                      options={groupOptions}
-                      onChange={this.handleGroupChange}
-                    />
-                  </Form.Field>
-                </Segment>
-                <div className="ui error message" />
-              </Form>
-            ) : null}
-
-            {group && !loading ? (
-              <>
-                <Route
-                  path={`/record-results/:groupId`}
-                  render={(props) => (
-                    <Scorecard
-                      date={date}
-                      handleDateChange={this.handleDateChange}
-                      handleCreateSessionClick={this.handleCreateSessionClick}
-                      handleRemoveGroup={this.handleRemoveGroup}
-                      group_id={group_id}
-                      {...props}
-                    />
-                  )}
-                ></Route>
-              </>
-            ) : null}
-            {loading ? <Loader active inline="centered" /> : null}
-          </div>
-        </Container>
-      </>
-    )
-  }
+          {group && !loading ? (
+            <>
+              <Route
+                path={`/record-results/:groupId`}
+                render={(props) => (
+                  <Scorecard
+                    date={date}
+                    handleDateChange={handleDateChange}
+                    handleCreateSessionClick={handleCreateSessionClick}
+                    handleRemoveGroup={handleRemoveGroup}
+                    group_id={group_id}
+                    {...props}
+                  />
+                )}
+              ></Route>
+            </>
+          ) : null}
+          {loading ? <Loader active inline="centered" /> : null}
+        </div>
+      </Container>
+    </>
+  )
 }

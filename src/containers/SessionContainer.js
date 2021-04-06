@@ -1,65 +1,52 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import { Route } from "react-router-dom"
 import SessionTable from "../components/SessionTable"
 import MatchesTable from "../components/MatchesTable"
 import { Loader } from "semantic-ui-react"
 import { baseUrl } from "../constants"
 
-export default class SessionContainer extends Component {
-  state = {
-    sessions: [],
-    activeItem: null,
-  }
+export default function SessionContainer(props) {
+  const [sessions, setSessions] = useState([])
+  const [activeItem, setActiveItem] = useState(null)
 
-  fetchSessions = () => {
+  const fetchSessions = () => {
     fetch(baseUrl + "/sessions", {})
       .then((res) => res.json())
       .then((sessions) => {
-        this.setState({ sessions })
+        setSessions(sessions)
       })
       .catch((e) => console.error(e))
   }
 
-  handleSessionClick = (e, session_id) => {
-    const { sessions } = this.state
-    this.setState({
-      activeItem: session_id,
-      matches: sessions.find((session) => session.id === session_id).matches,
-    })
-    this.props.history.push(`/results/${session_id}`)
+  const handleSessionClick = (e, session_id) => {
+    props.history.push(`/results/${session_id}`)
   }
 
-  componentDidMount() {
-    this.fetchSessions()
-  }
+  useEffect(() => fetchSessions(), [])
 
-  render() {
-    const { sessions, activeItem } = this.state
+  return (
+    <>
+      <Route
+        path={`/results/:sessionId`}
+        render={(props) => <MatchesTable {...props} />}
+      ></Route>
 
-    return (
-      <>
+      {sessions.length > 0 ? (
         <Route
-          path={`/results/:sessionId`}
-          render={(props) => <MatchesTable {...props} />}
+          exact
+          path={`/results`}
+          render={(props) => (
+            <SessionTable
+              sessions={sessions}
+              activeItem={activeItem}
+              handleSessionClick={handleSessionClick}
+              {...props}
+            />
+          )}
         ></Route>
-
-        {sessions.length > 0 ? (
-          <Route
-            exact
-            path={`/results`}
-            render={(props) => (
-              <SessionTable
-                sessions={sessions}
-                activeItem={activeItem}
-                handleSessionClick={this.handleSessionClick}
-                {...props}
-              />
-            )}
-          ></Route>
-        ) : (
-          <Loader style={{ marginTop: "1rem" }} active inline="centered" />
-        )}
-      </>
-    )
-  }
+      ) : (
+        <Loader style={{ marginTop: "1rem" }} active inline="centered" />
+      )}
+    </>
+  )
 }

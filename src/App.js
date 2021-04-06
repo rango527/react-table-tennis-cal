@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React, { useState, useEffect } from "react"
 import {
   BrowserRouter as Router,
   Switch,
@@ -15,17 +15,15 @@ import SessionContainer from "./containers/SessionContainer"
 import LoginForm from "./components/LoginForm"
 import CalculateRatings from "./components/CalculateRatings"
 
-export default class App extends Component {
-  state = {
-    loading: false,
-    groups: [],
-    players: [],
-    loggedIn: false,
-    error: "",
-    user: {},
-  }
+export default function App() {
+  const [loading, setLoading] = useState(false)
+  const [groups, setGroups] = useState([])
+  const [players, setPlayers] = useState([])
+  const [loggedIn, setLoggedIn] = useState(false)
+  const [error, setError] = useState("")
+  const [user, setUser] = useState({})
 
-  handleLogin = (e) => {
+  const handleLogin = (e) => {
     e.preventDefault()
 
     let params = {
@@ -35,7 +33,7 @@ export default class App extends Component {
       },
     }
 
-    this.setState({ error: "" })
+    setError("")
 
     fetch(baseUrl + "/login", {
       method: "POST",
@@ -52,36 +50,37 @@ export default class App extends Component {
           localStorage.setItem("token", data.jwt)
           localStorage.setItem("admin", data.player.admin)
 
-          this.setState({
-            error: "",
-            loggedIn: true,
-            user: data.player,
-          })
+          setError("")
+          setLoggedIn(true)
+          setUser(data.player)
         } else {
-          this.setState({ error: "Invalid username or password" })
+          setError("Invalid username or password")
           alert("Invalid username or password")
         }
       })
   }
 
-  handleLogout = () => {
+  const handleLogout = () => {
     localStorage.clear()
-    this.setState({ loggedIn: false })
+    setLoggedIn(false)
   }
 
-  fetchGroups = () => {
-    this.setState({ loading: true, groups: [] })
+  const fetchGroups = () => {
+    setLoading(true)
+    setGroups([])
 
     fetch(baseUrl + "/groups", {})
       .then((res) => res.json())
       .then((groups) => {
-        this.setState({ groups, loading: false })
+        setLoading(false)
+        setGroups(groups)
       })
       .catch((e) => console.error(e))
   }
 
-  fetchPlayers = () => {
-    this.setState({ loading: true, players: [] })
+  const fetchPlayers = () => {
+    setLoading(true)
+    setPlayers([])
 
     fetch(baseUrl + "/players", {})
       .then((res) => res.json())
@@ -93,17 +92,14 @@ export default class App extends Component {
             return 0
           }
         })
-
-        this.setState({
-          players: sortedPlayers,
-          loading: false,
-        })
+        setLoading(false)
+        setPlayers(sortedPlayers)
       })
       .catch((e) => console.error(e))
   }
 
-  handleAddPlayerToGroup = (groupId, playerId, addOrRemove) => {
-    this.setState({ loading: true })
+  const handleAddPlayerToGroup = (groupId, playerId, addOrRemove) => {
+    setLoading(true)
 
     let data = {
       player_id: playerId,
@@ -117,104 +113,99 @@ export default class App extends Component {
     })
       .then((response) => response.json())
       .then((jsonData) => {
-        this.fetchPlayers()
-        this.fetchGroups()
-        this.setState({
-          loading: false,
-        })
+        fetchPlayers()
+        fetchGroups()
+        setLoading(false)
       })
   }
 
-  handleCreatePlayer = () => {}
+  const handleCreatePlayer = () => {}
 
-  componentDidMount() {
-    this.fetchGroups()
-    this.fetchPlayers()
-  }
+  useEffect(() => {
+    fetchGroups()
+    fetchPlayers()
+  }, [])
 
-  render() {
-    const { user, groups, players, loading } = this.state
-    return (
-      <Router>
-        <Container style={{ padding: "1rem" }}>
-          <div>
-            <Segment clearing>
-              <Header as="h1" floated="left">
-                WDCTT Ratings
-              </Header>
-              {localStorage.getItem("token") ? (
-                <Link to="/login" onClick={this.handleLogout}>
-                  <Button floated="right">Log Out</Button>
-                </Link>
+  return (
+    <Router>
+      <Container style={{ padding: "1rem" }}>
+        <div>
+          <Segment clearing>
+            <Header as="h1" floated="left">
+              WDCTT Ratings
+            </Header>
+            {localStorage.getItem("token") ? (
+              <Link to="/login" onClick={handleLogout}>
+                <Button floated="right">Log Out</Button>
+              </Link>
+            ) : (
+              <Link to="/login">
+                <Button floated="right">Log In</Button>
+              </Link>
+            )}
+          </Segment>
+          <Route path="/" render={(props) => <Nav {...props} />}></Route>
+
+          <Message
+            style={{ marginBottom: "1rem" }}
+            content="If you see something wrong, or have questions, email Oren Magid at oren.michael.magid@gmail.com."
+          />
+        </div>
+        <Switch>
+          <Segment>
+            <Route exact path="/">
+              <Redirect to="/players" />
+            </Route>
+            <Route path="/login">
+              {!localStorage.getItem("token") ? (
+                <LoginForm handleLogin={handleLogin} />
               ) : (
-                <Link to="/login">
-                  <Button floated="right">Log In</Button>
-                </Link>
-              )}
-            </Segment>
-            <Route path="/" render={(props) => <Nav {...props} />}></Route>
-
-            <Message
-              style={{ marginBottom: "1rem" }}
-              content="If you see something wrong, or have questions, email Oren Magid at oren.michael.magid@gmail.com."
-            />
-          </div>
-          <Switch>
-            <Segment>
-              <Route exact path="/">
                 <Redirect to="/players" />
-              </Route>
-              <Route path="/login">
-                {!localStorage.getItem("token") ? (
-                  <LoginForm handleLogin={this.handleLogin} />
-                ) : (
-                  <Redirect to="/players" />
-                )}
-              </Route>
-              <Route
-                path="/players"
-                render={(props) => (
-                  <PlayerContainer
-                    loading={loading}
-                    user={user}
-                    groups={groups}
-                    players={players}
-                    handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                    handleCreatePlayer={this.handleCreatePlayer}
-                    {...props}
-                  />
-                )}
-              ></Route>
+              )}
+            </Route>
+            <Route
+              path="/players"
+              render={(props) => (
+                <PlayerContainer
+                  loading={loading}
+                  user={user}
+                  groups={groups}
+                  players={players}
+                  handleAddPlayerToGroup={handleAddPlayerToGroup}
+                  handleCreatePlayer={handleCreatePlayer}
+                  {...props}
+                />
+              )}
+            ></Route>
 
+            <Route
+              path="/groups"
+              render={(props) => (
+                <GroupContainer
+                  loading={loading}
+                  user={user}
+                  groups={groups}
+                  players={players}
+                  handleAddPlayerToGroup={handleAddPlayerToGroup}
+                  {...props}
+                />
+              )}
+            ></Route>
+            <Route
+              path="/results"
+              render={(props) => <SessionContainer user={user} {...props} />}
+            ></Route>
+            {localStorage.getItem("token") ? (
               <Route
-                path="/groups"
+                path="/record-results"
                 render={(props) => (
-                  <GroupContainer
-                    loading={loading}
-                    user={user}
-                    groups={groups}
-                    players={players}
-                    handleAddPlayerToGroup={this.handleAddPlayerToGroup}
-                    {...props}
-                  />
+                  <CalculateRatings path="/record-results" {...props} />
                 )}
               ></Route>
-              <Route
-                path="/results"
-                render={(props) => <SessionContainer user={user} {...props} />}
-              ></Route>
-              {localStorage.getItem("token") ? (
-                <Route
-                  path="/record-results"
-                  render={(props) => (
-                    <CalculateRatings path="/record-results" {...props} />
-                  )}
-                ></Route>
-              ) : null}
-            </Segment>
-          </Switch>
-        </Container>
-      </Router>
-    )
-  }
+            ) : null}
+          </Segment>
+        </Switch>
+      </Container>
+    </Router>
+  )
 }
