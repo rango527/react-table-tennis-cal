@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { baseUrl } from "../constants"
+import { baseUrl } from "../../constants"
 import { Link } from "react-router-dom"
 import { Button, Message, Segment, Icon, Form } from "semantic-ui-react"
 import ScoreCardTable from "./ScoreCardTable"

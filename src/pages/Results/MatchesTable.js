@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react"
 import { Table, Loader, Message } from "semantic-ui-react"
-import CloseButton from "./elements/CloseButton"
-import { baseUrl } from "../constants"
-import { getFormattedDate } from "../utilities"
+import CloseButton from "../../components/elements/CloseButton"
+import { baseUrl } from "../../constants"
+import { getFormattedDate } from "../../utilities"
 
 export default function MatchesTable({ match }) {
   // const [sessionId, setSessionId] = useState(null)

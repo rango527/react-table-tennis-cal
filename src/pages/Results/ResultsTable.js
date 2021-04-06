@@ -1,8 +1,8 @@
 import React from "react"
 import { Table, Message } from "semantic-ui-react"
-import { getFormattedDate } from "../utilities"
+import { getFormattedDate } from "../../utilities"
 
-export default function SessionTable({
+export default function ResultsTable({
   sessions,
   handleSessionClick,
   activeItem,

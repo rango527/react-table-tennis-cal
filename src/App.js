@@ -3,17 +3,17 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
   Redirect,
 } from "react-router-dom"
 import { baseUrl, HEADERS } from "./constants"
-import { Container, Segment, Header, Button, Message } from "semantic-ui-react"
+import { Container, Segment, Message } from "semantic-ui-react"
+import AppHeader from "./components/AppHeader"
 import Nav from "./components/Nav"
-import PlayerContainer from "./containers/PlayerContainer"
-import GroupContainer from "./containers/GroupContainer"
-import SessionContainer from "./containers/SessionContainer"
+import Players from "./pages/Players"
+import Groups from "./pages/Groups"
+import Results from "./pages/Results"
 import LoginForm from "./components/LoginForm"
-import CalculateRatings from "./components/CalculateRatings"
+import CalculateRatingsContainer from "./pages/CalculateRatings"
 
 export default function App() {
   const [loading, setLoading] = useState(false)
@@ -130,20 +130,13 @@ export default function App() {
     <Router>
       <Container style={{ padding: "1rem" }}>
         <div>
-          <Segment clearing>
-            <Header as="h1" floated="left">
-              WDCTT Ratings
-            </Header>
-            {localStorage.getItem("token") ? (
-              <Link to="/login" onClick={handleLogout}>
-                <Button floated="right">Log Out</Button>
-              </Link>
-            ) : (
-              <Link to="/login">
-                <Button floated="right">Log In</Button>
-              </Link>
+          <Route
+            path="/"
+            render={(props) => (
+              <AppHeader handleLogout={handleLogout} {...props} />
             )}
-          </Segment>
+          ></Route>
+
           <Route path="/" render={(props) => <Nav {...props} />}></Route>
 
           <Message
@@ -166,7 +159,7 @@ export default function App() {
             <Route
               path="/players"
               render={(props) => (
-                <PlayerContainer
+                <Players
                   loading={loading}
                   user={user}
                   groups={groups}
@@ -181,7 +174,7 @@ export default function App() {
             <Route
               path="/groups"
               render={(props) => (
-                <GroupContainer
+                <Groups
                   loading={loading}
                   user={user}
                   groups={groups}
@@ -193,13 +186,16 @@ export default function App() {
             ></Route>
             <Route
               path="/results"
-              render={(props) => <SessionContainer user={user} {...props} />}
+              render={(props) => <Results user={user} {...props} />}
             ></Route>
             {localStorage.getItem("token") ? (
               <Route
                 path="/record-results"
                 render={(props) => (
-                  <CalculateRatings path="/record-results" {...props} />
+                  <CalculateRatingsContainer
+                    path="/record-results"
+                    {...props}
+                  />
                 )}
               ></Route>
             ) : null}

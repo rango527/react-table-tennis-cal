@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 import { Link, Route } from "react-router-dom"
 import { Loader, Button, Icon, Message } from "semantic-ui-react"
-import PlayerTable from "../components/PlayerTable"
-import PlayerStats from "../components/PlayerStats"
+import PlayerTable from "../../components/PlayerTable"
+import PlayerStats from "../../components/PlayerStats"
 
 export default function PlayerContainer({
   user,

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { Menu } from "semantic-ui-react"
 import { isAdmin } from "../utilities"
 
-export default function ({ location }) {
+export default function Nav({ location }) {
   return (
     <Menu tabular stackable>
       <Link to="/players">

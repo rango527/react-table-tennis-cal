@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
-import CreateSessionForm from "../components/CreateSessionForm"
-import { baseUrl } from "../constants"
+import CreateSessionForm from "./CreateSessionForm"
+import { baseUrl } from "../../constants"
 
 export default function SessionContainer(props) {
   const [groups, setGroups] = useState([])

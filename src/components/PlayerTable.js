@@ -1,4 +1,4 @@
-import React, { Component } from "react"
+import React from "react"
 import { Dropdown, Table, Loader, Icon } from "semantic-ui-react"
 import { Link } from "react-router-dom"
 import { isAdmin, groupNameFromGroupId } from "../utilities"
@@ -157,6 +157,8 @@ export default function PlayerTable({
                       <Table.Cell>{player.most_recent_rating}</Table.Cell>
                     </Table.Row>
                   )
+                } else {
+                  return null
                 }
               })}
             </Table.Body>

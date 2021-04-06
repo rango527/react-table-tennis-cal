@@ -3,7 +3,7 @@ import { Route } from "react-router-dom"
 import { Container, Form, Segment, Message, Loader } from "semantic-ui-react"
 import Scorecard from "./ScoreCard"
 
-import { baseUrl, HEADERS } from "../constants"
+import { baseUrl, HEADERS } from "../../constants"
 
 export default function CreateSessionForm({ history, groups }) {
   const [date, setDate] = useState(null)

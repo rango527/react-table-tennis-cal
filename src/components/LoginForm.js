@@ -14,7 +14,6 @@ export default function LoginForm({ handleLogin }) {
                 type="text"
                 name="username"
                 placeholder="Username"
-                onChange={(e) => this.setState({ username: e.target.value })}
               />
             </Form.Field>
             <Form.Field>
@@ -24,7 +23,6 @@ export default function LoginForm({ handleLogin }) {
                 type="password"
                 name="password"
                 placeholder="Password"
-                onChange={(e) => this.setState({ password: e.target.value })}
               />
             </Form.Field>
             <Button>Login</Button>

@@ -111,7 +111,7 @@ export default function PlayerStats({ match }) {
                   Math.ceil(max / 100) * 100,
                 ]}
               />
-              <Tooltip content={this.renderTooltip} />
+              <Tooltip content={renderTooltip} />
               <Legend />
               <Line
                 type="monotone"

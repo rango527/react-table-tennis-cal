@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Route } from "react-router-dom"
-import GroupListTable from "../components/GroupListTable"
-import GroupPlayerTable from "../components/GroupPlayerTable"
+import GroupListTable from "./GroupListTable"
+import GroupPlayerTable from "./GroupPlayerTable"
 import { Loader } from "semantic-ui-react"
 
 export default function GroupContainer({

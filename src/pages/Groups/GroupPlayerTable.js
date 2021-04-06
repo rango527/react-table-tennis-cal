@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { baseUrl } from "../constants"
-import PlayerTable from "./PlayerTable"
+import { baseUrl } from "../../constants"
+import PlayerTable from "../../components/PlayerTable"
 import { Loader } from "semantic-ui-react"
 
 export default function GroupPlayerTable({
@@ -16,18 +16,19 @@ export default function GroupPlayerTable({
   const [loading, setLoading] = useState(true)
 
   const handleHeaderClick = (e, name) => {
+    let newSortedPlayers
     if (name === column) {
-      sortedPlayers = sortedPlayers.reverse()
+      newSortedPlayers = sortedPlayers.reverse()
     } else {
       if (name === "rating") {
-        sortedPlayers = sortedPlayers.sort((a, b) => {
+        newSortedPlayers = sortedPlayers.sort((a, b) => {
           return (
             a.ratings[a.ratings.length - 1].value -
             b.ratings[b.ratings.length - 1].value
           )
         })
       } else if (name === "group") {
-        sortedPlayers = sortedPlayers.sort((a, b) => {
+        newSortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.groups[0].name < b.groups[0].name) {
             return -1
           }
@@ -37,7 +38,7 @@ export default function GroupPlayerTable({
           return 0
         })
       } else if (name === "email") {
-        sortedPlayers = sortedPlayers.sort((a, b) => {
+        newSortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.email < b.email) {
             return -1
           }
@@ -47,7 +48,7 @@ export default function GroupPlayerTable({
           return 0
         })
       } else if (name === "name") {
-        sortedPlayers = sortedPlayers.sort((a, b) => {
+        newSortedPlayers = sortedPlayers.sort((a, b) => {
           if (a.name < b.name) {
             return -1
           }
@@ -61,7 +62,7 @@ export default function GroupPlayerTable({
 
     setColumn(name)
     setDirection(direction === "ascending" ? "descending" : "ascending")
-    setSortedPlayers(sortedPlayers)
+    setSortedPlayers(newSortedPlayers)
   }
 
   const handleAddPlayerToGroup = (group_id, player_id, addOrRemove = "add") => {

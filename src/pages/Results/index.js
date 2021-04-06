@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Route } from "react-router-dom"
-import SessionTable from "../components/SessionTable"
-import MatchesTable from "../components/MatchesTable"
+import ResultsTable from "./ResultsTable"
+import MatchesTable from "./MatchesTable"
 import { Loader } from "semantic-ui-react"
-import { baseUrl } from "../constants"
+import { baseUrl } from "../../constants"
 
 export default function SessionContainer(props) {
   const [sessions, setSessions] = useState([])
@@ -36,7 +36,7 @@ export default function SessionContainer(props) {
           exact
           path={`/results`}
           render={(props) => (
-            <SessionTable
+            <ResultsTable
               sessions={sessions}
               activeItem={activeItem}
               handleSessionClick={handleSessionClick}
