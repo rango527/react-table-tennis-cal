@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import CreateSessionForm from "./CreateSessionForm"
-import { baseUrl } from "../../constants"
+import ErrorMessage from "../../components/ErrorMessage"
+import { Loader } from "semantic-ui-react"
+import { useQuery } from "react-query"
+import { fetchGroups } from "../../api"
 
 export default function SessionContainer(props) {
-  const [groups, setGroups] = useState([])
+  const { data: groups, error, isLoading, isError } = useQuery(
+    "groups",
+    fetchGroups
+  )
 
-  const fetchGroups = () => {
-    let token = localStorage.getItem("token")
-    if (token) {
-      fetch(baseUrl + "/groups", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-        .then((res) => res.json())
-        .then((groups) => {
-          setGroups(groups)
-        })
-        .catch((e) => console.error(e))
-    }
+  if (isLoading) {
+    return <Loader style={{ marginTop: "1rem" }} active inline="centered" />
   }
 
-  useEffect(() => {
-    fetchGroups()
-  }, [])
+  if (isError) {
+    return <ErrorMessage message={error} />
+  }
 
   return (
     <>

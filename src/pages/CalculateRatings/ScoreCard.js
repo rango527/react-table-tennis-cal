@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react"
-import { baseUrl } from "../../constants"
+import React, { useState } from "react"
+import { useQuery } from "react-query"
+import { fetchGroup } from "../../api"
 import { Link } from "react-router-dom"
-import { Button, Message, Segment, Icon, Form } from "semantic-ui-react"
+import { Button, Message, Segment, Icon, Form, Loader } from "semantic-ui-react"
 import ScoreCardTable from "./ScoreCardTable"
 import ResultsTable from "./ResultsTable"
+import ErrorMessage from "../../components/ErrorMessage"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import "react-datepicker/dist/react-datepicker-cssmodules.css"
@@ -16,10 +18,20 @@ export default function ScoreCard({
   handleDateChange,
   date,
 }) {
-  const [loading, setLoading] = useState(true)
   const [players, setPlayers] = useState([])
   const [matches, setMatches] = useState([])
   const [inactivePlayerIds, setInactivePlayerIds] = useState([])
+
+  const { data: group, error, isLoading, isError } = useQuery(
+    ["group", match.params.groupId],
+    () => fetchGroup(match.params.groupId),
+    {
+      onSuccess: (group) => {
+        setPlayers(group.players)
+        setInitialMatches(group.players)
+      },
+    }
+  )
 
   const handleClick = (index, i) => {
     const stateMatches = [...matches]
@@ -125,28 +137,13 @@ export default function ScoreCard({
     setMatches(matches)
   }
 
-  const fetchGroupAndSetMatches = () => {
-    const { groupId } = match.params
-    fetch(baseUrl + `/groups/${groupId}`, {})
-      .then((res) => res.json())
-      .then((group) => {
-        const sortedPlayers = group.players.sort((a, b) => {
-          if (a.most_recent_rating && b.most_recent_rating) {
-            return b.most_recent_rating - a.most_recent_rating
-          } else {
-            return 0
-          }
-        })
-        setLoading(false)
-        setPlayers(sortedPlayers)
-        setInitialMatches(sortedPlayers)
-      })
-      .catch((e) => console.error(e))
+  if (isLoading) {
+    return <Loader style={{ marginTop: "1rem" }} active inline="centered" />
   }
 
-  useEffect(() => {
-    fetchGroupAndSetMatches()
-  }, [])
+  if (isError) {
+    return <ErrorMessage message={error} />
+  }
 
   return (
     <Segment>

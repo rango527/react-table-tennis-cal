@@ -1,56 +1,44 @@
 import React from "react"
+import { useMutation, useQueryClient } from "react-query"
+import { addPlayerToGroup } from "../api"
 import { Dropdown, Table, Loader, Icon } from "semantic-ui-react"
 import { Link } from "react-router-dom"
 import { isAdmin, groupNameFromGroupId } from "../utilities"
 
-export default function PlayerTable({
-  column,
-  direction,
-  players,
-  handleHeaderClick,
-  groups,
-  handleAddPlayerToGroup,
-  loading,
-}) {
+export default function PlayerTable({ players, groups }) {
+  const queryClient = useQueryClient()
+
+  const { mutate: groupMutate, isLoading, isError, isSuccess } = useMutation(
+    ({ groupId, playerId, addOrRemove }) =>
+      addPlayerToGroup(groupId, playerId, addOrRemove),
+    {
+      onSuccess: ({ group, groupId, playerId }) => {
+        // queryClient.invalidateQueries("groups")
+        // queryClient.invalidateQueries(["group", groupId])
+        // queryClient.refetchQueries(["group", group.id])
+        // queryClient.invalidateQueries("players")
+        // queryClient.invalidateQueries(["player", playerId])
+        queryClient.refetchQueries({ stale: true })
+      },
+    }
+  )
+
   return (
     <>
       {players.length > 0 ? (
         <>
-          <Table
-            // sortable
-            celled
-          >
+          <Table celled>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell
-                  sorted={column === "name" ? direction : null}
-                  // onClick={(e) => handleHeaderClick(e, "name")}
-                >
-                  Name
-                </Table.HeaderCell>
+                <Table.HeaderCell>Name</Table.HeaderCell>
                 {isAdmin() ? (
-                  <Table.HeaderCell
-                    sorted={column === "email" ? direction : null}
-                    // onClick={(e) => handleHeaderClick(e, "email")}
-                  >
-                    E-mail address
-                  </Table.HeaderCell>
+                  <Table.HeaderCell>E-mail address</Table.HeaderCell>
                 ) : null}
-                <Table.HeaderCell
-                  sorted={column === "group" ? direction : null}
-                  // onClick={(e) => handleHeaderClick(e, "group")}
-                >
-                  Group(s)
-                </Table.HeaderCell>
+                <Table.HeaderCell>Group(s)</Table.HeaderCell>
                 {isAdmin() ? (
                   <Table.HeaderCell>Actions</Table.HeaderCell>
                 ) : null}
-                <Table.HeaderCell
-                  sorted={column === "rating" ? direction : null}
-                  // onClick={(e) => handleHeaderClick(e, "rating")}
-                >
-                  Rating
-                </Table.HeaderCell>
+                <Table.HeaderCell>Rating</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
 
@@ -97,7 +85,7 @@ export default function PlayerTable({
                       </Table.Cell>
                       {isAdmin() ? (
                         <Table.Cell>
-                          {!loading ? (
+                          {!isLoading && !isError ? (
                             <Dropdown compact style={{ width: "50%" }}>
                               <Dropdown.Menu>
                                 {groups
@@ -112,11 +100,11 @@ export default function PlayerTable({
                                       <Dropdown.Item
                                         key={`${player.name}-${group.name}-Add`}
                                         onClick={() =>
-                                          handleAddPlayerToGroup(
-                                            group.id,
-                                            player.id,
-                                            "add"
-                                          )
+                                          groupMutate({
+                                            groupId: group.id,
+                                            playerId: player.id,
+                                            addOrRemove: "add",
+                                          })
                                         }
                                       >
                                         Add to {group.name}
@@ -135,11 +123,11 @@ export default function PlayerTable({
                                       <Dropdown.Item
                                         key={`${player.name}-${group.name}-Remove`}
                                         onClick={() =>
-                                          handleAddPlayerToGroup(
-                                            group.id,
-                                            player.id,
-                                            "remove"
-                                          )
+                                          groupMutate({
+                                            groupId: group.id,
+                                            playerId: player.id,
+                                            addOrRemove: "remove",
+                                          })
                                         }
                                       >
                                         Remove from {group.name}

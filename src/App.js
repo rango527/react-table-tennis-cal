@@ -5,7 +5,7 @@ import {
   Route,
   Redirect,
 } from "react-router-dom"
-import { baseUrl, HEADERS } from "./constants"
+import { baseUrl } from "./constants"
 import { Container, Segment } from "semantic-ui-react"
 import AppHeader from "./components/AppHeader"
 import Players from "./pages/Players"
@@ -15,11 +15,6 @@ import LoginForm from "./components/LoginForm"
 import CalculateRatingsContainer from "./pages/CalculateRatings"
 
 export default function App() {
-  const [loading, setLoading] = useState(false)
-  const [groups, setGroups] = useState([])
-  // const [players, setPlayers] = useState([])
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [error, setError] = useState("")
   const [user, setUser] = useState({})
 
   const handleLogin = (e) => {
@@ -31,8 +26,6 @@ export default function App() {
         password: e.currentTarget.password.value,
       },
     }
-
-    setError("")
 
     fetch(baseUrl + "/login", {
       method: "POST",
@@ -49,11 +42,8 @@ export default function App() {
           localStorage.setItem("token", data.jwt)
           localStorage.setItem("admin", data.player.admin)
 
-          setError("")
-          setLoggedIn(true)
           setUser(data.player)
         } else {
-          setError("Invalid username or password")
           alert("Invalid username or password")
         }
       })
@@ -61,28 +51,6 @@ export default function App() {
 
   const handleLogout = () => {
     localStorage.clear()
-    setLoggedIn(false)
-  }
-
-  const handleAddPlayerToGroup = (groupId, playerId, addOrRemove) => {
-    setLoading(true)
-
-    let data = {
-      player_id: playerId,
-      add_or_remove: addOrRemove,
-    }
-
-    fetch(`${baseUrl}/groups/${groupId}`, {
-      method: "PATCH",
-      headers: HEADERS,
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((jsonData) => {
-        // fetchPlayers()
-        // fetchGroups()
-        setLoading(false)
-      })
   }
 
   const handleCreatePlayer = () => {}
@@ -113,9 +81,7 @@ export default function App() {
                 path="/players"
                 render={(props) => (
                   <Players
-                    loading={loading}
                     user={user}
-                    handleAddPlayerToGroup={handleAddPlayerToGroup}
                     handleCreatePlayer={handleCreatePlayer}
                     {...props}
                   />
@@ -126,29 +92,27 @@ export default function App() {
                 path="/groups"
                 render={(props) => (
                   <Groups
-                    loading={loading}
                     user={user}
-                    groups={groups}
-                    handleAddPlayerToGroup={handleAddPlayerToGroup}
+                    // handleAddPlayerToGroup={handleAddPlayerToGroup}
                     {...props}
                   />
                 )}
               ></Route>
-              {/* <Route
-              path="/results"
-              render={(props) => <Results user={user} {...props} />}
-            ></Route>
-            {localStorage.getItem("token") ? (
               <Route
-                path="/record-results"
-                render={(props) => (
-                  <CalculateRatingsContainer
-                    path="/record-results"
-                    {...props}
-                  />
-                )}
+                path="/results"
+                render={(props) => <Results user={user} {...props} />}
               ></Route>
-            ) : null} */}
+              {localStorage.getItem("token") ? (
+                <Route
+                  path="/record-results"
+                  render={(props) => (
+                    <CalculateRatingsContainer
+                      path="/record-results"
+                      {...props}
+                    />
+                  )}
+                ></Route>
+              ) : null}
             </Segment>
           </Switch>
         </main>

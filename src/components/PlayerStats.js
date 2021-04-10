@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
+import ErrorMessage from "./ErrorMessage"
+import { useQuery } from "react-query"
+import { fetchPlayer } from "../api"
 import { Header, Loader, Segment } from "semantic-ui-react"
 import {
   LineChart,
@@ -10,28 +13,14 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts"
-import { baseUrl } from "../constants"
 import CloseButton from "./elements/CloseButton"
 import { sortRatings, getFormattedDate } from "../utilities"
 
 export default function PlayerStats({ match }) {
-  const [loading, setLoading] = useState(true)
-  const [player, setPlayer] = useState({})
-
-  const fetchPlayer = () => {
-    const { playerId } = match.params
-    fetch(baseUrl + `/players/${playerId}`, {})
-      .then((res) => res.json())
-      .then((player) => {
-        setPlayer(player)
-        setLoading(false)
-      })
-      .catch((e) => console.error(e))
-  }
-
-  useEffect(() => {
-    fetchPlayer()
-  }, [])
+  const { data: player, error, isLoading, isError } = useQuery(
+    ["player", match.params.playerId],
+    () => fetchPlayer(match.params.playerId)
+  )
 
   const renderTooltip = (props) => {
     if (!props.active) {
@@ -59,6 +48,21 @@ export default function PlayerStats({ match }) {
       )
     }
   }
+
+  if (isLoading) {
+    return <Loader style={{ marginTop: "1rem" }} active inline="centered" />
+  }
+
+  if (isError) {
+    return <ErrorMessage message={error} />
+  }
+
+  const sortedRatings = player.ratings
+    ? player.ratings.sort((a, b) => {
+        return b.value - a.value
+      })
+    : []
+
   const data = sortRatings(player.ratings ? player.ratings : []).map(
     (rating) => {
       return {
@@ -68,12 +72,6 @@ export default function PlayerStats({ match }) {
       }
     }
   )
-
-  const sortedRatings = player.ratings
-    ? player.ratings.sort((a, b) => {
-        return b.value - a.value
-      })
-    : []
 
   const max = sortedRatings.length > 0 ? sortedRatings[0].value + 100 : 0
 
@@ -87,43 +85,37 @@ export default function PlayerStats({ match }) {
       <CloseButton handleClick={() => window.history.back()} />
       <div style={{ textAlign: "center" }}>
         <Header as="h2">{player.name}</Header>
-        {!loading ? (
-          <ResponsiveContainer
-            width="95%"
-            height={300}
-            style={{ margin: "auto" }}
+
+        <ResponsiveContainer
+          width="95%"
+          height={300}
+          style={{ margin: "auto" }}
+        >
+          <LineChart
+            data={data}
+            margin={{
+              top: 5,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
           >
-            <LineChart
-              data={data}
-              margin={{
-                top: 5,
-                right: 30,
-                left: 20,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis
-                type="number"
-                domain={[
-                  Math.ceil(min / 100) * 100,
-                  Math.ceil(max / 100) * 100,
-                ]}
-              />
-              <Tooltip content={renderTooltip} />
-              <Legend />
-              <Line
-                type="monotone"
-                dataKey="rating"
-                stroke="#8884d8"
-                activeDot={{ r: 8 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        ) : (
-          <Loader active inline="centered" />
-        )}
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="date" />
+            <YAxis
+              type="number"
+              domain={[Math.ceil(min / 100) * 100, Math.ceil(max / 100) * 100]}
+            />
+            <Tooltip content={renderTooltip} />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="rating"
+              stroke="#8884d8"
+              activeDot={{ r: 8 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </Segment>
   )

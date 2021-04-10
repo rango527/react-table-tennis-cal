@@ -1,14 +1,29 @@
 import React, { useState } from "react"
 import { Route } from "react-router-dom"
+import { useMutation, useQueryClient } from "react-query"
 import { Container, Form, Segment, Message, Loader } from "semantic-ui-react"
+import ErrorMessage from "../../components/ErrorMessage"
 import Scorecard from "./ScoreCard"
-
-import { baseUrl, HEADERS } from "../../constants"
+import { createSession } from "../../api"
 
 export default function CreateSessionForm({ history, groups }) {
   const [date, setDate] = useState(null)
   const [group_id, set_group_id] = useState(null)
-  const [loading, setLoading] = useState(false)
+
+  const queryClient = useQueryClient()
+
+  const {
+    mutate: createSessionMutate,
+    isLoading,
+    isError,
+    error,
+    isSuccess,
+  } = useMutation((data) => createSession(data), {
+    onSuccess: (session) => {
+      queryClient.refetchQueries({ stale: true })
+      history.push(`/groups/${session.group_id}`)
+    },
+  })
 
   const handleDateChange = (date) => {
     setDate(date)
@@ -38,7 +53,6 @@ export default function CreateSessionForm({ history, groups }) {
   }
 
   const handleCreateSessionClick = (matches, group_id) => {
-    setLoading(true)
     const uniqueMatches = matches.filter((match) => match.count && match.played)
 
     let data = {
@@ -47,16 +61,7 @@ export default function CreateSessionForm({ history, groups }) {
       date: new Date(date),
     }
 
-    fetch(`${baseUrl}/sessions`, {
-      method: "POST",
-      headers: HEADERS,
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setLoading(false)
-        history.push(`/groups/${group_id}`)
-      })
+    createSessionMutate(data)
   }
 
   const group = group_id ? groups.find((group) => group_id === group.id) : null
@@ -65,49 +70,52 @@ export default function CreateSessionForm({ history, groups }) {
     return { key: group.name, text: group.name, value: group.id }
   })
 
+  if (isLoading) {
+    return <Loader style={{ marginTop: "1rem" }} active inline="centered" />
+  }
+
+  if (isError) {
+    return <ErrorMessage message={error} />
+  }
+
   return (
     <>
       <Container>
         <div>
-          {!group && !loading ? (
-            <Form>
-              <Message
-                attached
-                content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
-              />
-              <Segment stacked>
-                <Form.Field>
-                  <Form.Dropdown
-                    placeholder="Select Group"
-                    fluid
-                    selection
-                    options={groupOptions}
-                    onChange={handleGroupChange}
-                  />
-                </Form.Field>
-              </Segment>
-              <div className="ui error message" />
-            </Form>
-          ) : null}
+          <Form>
+            <Message
+              attached
+              content="Select a group to see a sample scorecard. If you're on mobile it'll look like crap. I'll come up with a mobile design soon."
+            />
+            <Segment stacked>
+              <Form.Field>
+                <Form.Dropdown
+                  placeholder="Select Group"
+                  fluid
+                  selection
+                  options={groupOptions}
+                  onChange={handleGroupChange}
+                />
+              </Form.Field>
+            </Segment>
+            <div className="ui error message" />
+          </Form>
 
-          {group && !loading ? (
-            <>
-              <Route
-                path={`/record-results/:groupId`}
-                render={(props) => (
-                  <Scorecard
-                    date={date}
-                    handleDateChange={handleDateChange}
-                    handleCreateSessionClick={handleCreateSessionClick}
-                    handleRemoveGroup={handleRemoveGroup}
-                    group_id={group_id}
-                    {...props}
-                  />
-                )}
-              ></Route>
-            </>
-          ) : null}
-          {loading ? <Loader active inline="centered" /> : null}
+          <>
+            <Route
+              path={`/record-results/:groupId`}
+              render={(props) => (
+                <Scorecard
+                  date={date}
+                  handleDateChange={handleDateChange}
+                  handleCreateSessionClick={handleCreateSessionClick}
+                  handleRemoveGroup={handleRemoveGroup}
+                  group_id={group_id}
+                  {...props}
+                />
+              )}
+            ></Route>
+          </>
         </div>
       </Container>
     </>

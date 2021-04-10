@@ -12,12 +12,17 @@ export default function AppHeader({ location, handleLogout }) {
         </Header>
 
         {localStorage.getItem("token") ? (
-          <Link to="/login" onClick={handleLogout}>
-            <Button floated="right">Log Out</Button>
+          <Link
+            to="/login"
+            onClick={handleLogout}
+            component={Button}
+            style={{ float: "right" }}
+          >
+            Log Out
           </Link>
         ) : (
-          <Link to="/login">
-            <Button floated="right">Log In</Button>
+          <Link to="/login" component={Button} style={{ float: "right" }}>
+            Log In
           </Link>
         )}
       </Segment>

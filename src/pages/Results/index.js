@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
+import { useQuery } from "react-query"
 import { Route } from "react-router-dom"
 import ResultsTable from "./ResultsTable"
 import MatchesTable from "./MatchesTable"
 import { Loader } from "semantic-ui-react"
-import { baseUrl } from "../../constants"
+import ErrorMessage from "../../components/ErrorMessage"
+import { fetchSessions } from "../../api"
 
 export default function SessionContainer(props) {
-  const [sessions, setSessions] = useState([])
-  const [activeItem, setActiveItem] = useState(null)
-
-  const fetchSessions = () => {
-    fetch(baseUrl + "/sessions", {})
-      .then((res) => res.json())
-      .then((sessions) => {
-        setSessions(sessions)
-      })
-      .catch((e) => console.error(e))
-  }
+  const { data: sessions, error, isLoading, isError } = useQuery(
+    "sessions",
+    fetchSessions
+  )
 
   const handleSessionClick = (e, session_id) => {
     props.history.push(`/results/${session_id}`)
   }
 
-  useEffect(() => fetchSessions(), [])
+  if (isLoading) {
+    return <Loader style={{ marginTop: "1rem" }} active inline="centered" />
+  }
+
+  if (isError) {
+    return <ErrorMessage message={error} />
+  }
 
   return (
     <>
@@ -30,23 +31,17 @@ export default function SessionContainer(props) {
         path={`/results/:sessionId`}
         render={(props) => <MatchesTable {...props} />}
       ></Route>
-
-      {sessions.length > 0 ? (
-        <Route
-          exact
-          path={`/results`}
-          render={(props) => (
-            <ResultsTable
-              sessions={sessions}
-              activeItem={activeItem}
-              handleSessionClick={handleSessionClick}
-              {...props}
-            />
-          )}
-        ></Route>
-      ) : (
-        <Loader style={{ marginTop: "1rem" }} active inline="centered" />
-      )}
+      <Route
+        exact
+        path={`/results`}
+        render={(props) => (
+          <ResultsTable
+            sessions={sessions}
+            handleSessionClick={handleSessionClick}
+            {...props}
+          />
+        )}
+      ></Route>
     </>
   )
 }
